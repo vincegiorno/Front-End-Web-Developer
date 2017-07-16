@@ -1,0 +1,47 @@
+/* add your CSS here */
+html {
+    background: white;
+}
+
+body {
+    width: 300px;
+    padding-bottom: 1em;
+    padding-left: 1em;
+    padding-right: 1em;
+    border: groove;
+    border-radius: 5px;
+    box-shadow: 5px 5px 20px #ccc;
+    text-align: left;
+    background: #1199c3;
+}
+
+.info {
+    padding-left: 1em;
+    padding-right: 1em;
+    border: groove;
+    border-radius: 5px;
+    background-color: ghostwhite;
+}
+
+.cover {
+    width: 300px;
+    padding-bottom: 1em;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+}
+
+.fact {
+    font-style: italic;
+}
+
+span {
+    font-weight: bold;
+}
+
+h3 {
+    font-size: 1.5em;
+    font-weight: bold;
+}

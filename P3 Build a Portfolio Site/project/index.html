@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+      <link href="css/main.css" rel="stylesheet" >
+      <link href="https://fonts.googleapis.com/css?family=Open+Sans:300" rel="stylesheet">
+  </head>
+  <body>
+    <div class="container">
+        <header id="head">
+            <div class="row">
+                <div class="col-md-6">
+                    <img srcset="images/google.svg">
+                </div>
+                <div class="col-md-6">
+                    <h1>Jane Doette</h1>
+                    <h3>Front-end Ninja</h3>
+                </div>
+            </div>
+        </header>
+        <section id="padding">
+            <div class="row"></div>
+        </section>
+        <section id="cover">
+            <div class="row">
+                <div class="col-md-12">
+                    <img class="img-responsive" srcset="images/galaxy-3200_large_2x.jpg 2x, images/galaxy-1600_large_1x.jpg">
+                </div>
+            </div>
+        </section>
+        <section id="feature">
+            <div class="row">
+                <div class="col-md-12">
+                    <h2>Featured Work</h2>
+                </div>
+            </div>
+        </section>
+        <article id="project">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="picture">
+                        <img class="img-responsive" srcset="images/earth-3200_large_2x.jpg 2x, images/earth-1600_large_1x.jpg" data-toggle="modal" data-target="#project1">
+                    </div>
+                    <h3>earth</h3>
+                    <p><a href="https://en.wikipedia.org/wiki/Earth">https://github.com/martian/earth/</a></p>
+                </div>
+                <div class="col-md-4">
+                    <div class="picture">
+                        <img class="img-responsive" srcset="images/moon-3200_large_2x.jpg 2x, images/moon-1600_large_1x.jpg" data-toggle="modal" data-target="#project2">
+                    </div>
+                    <h3>moon</h3>
+                    <p><a href="https://en.wikipedia.org/wiki/Moon">https://github.com/martian/moon/</a></p>
+                </div>
+                <div class="col-md-4">
+                    <div class="picture">
+                        <img class="img-responsive" srcset="images/mars-3200_large_2x.jpg 2x, images/mars-1600_large_1x.jpg" data-toggle="modal" data-target="#project3">
+                    </div>
+                    <h3>mars</h3>
+                    <p><a href="https://en.wikipedia.org/wiki/Mars">https://github.com/martian/mars/</a></p>
+                </div>
+            </div>
+        </article>
+    </div>
+    <!-- Modal -->
+    <div class="modal fade" id="project1" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="myModalLabel1">earth</h4>
+                </div>
+                <div class="modal-body">
+                    <img class="img-responsive" srcset="images/earth-3200_large_2x.jpg 2x, images/earth-1600_large_1x.jpg">
+                    This was my FIRST project in this class. I learned a lot about HTML and CSS.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="project2" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="myModalLabel2">moon</h4>
+                </div>
+                <div class="modal-body">
+                    <img class="img-responsive" srcset="images/moon-3200_large_2x.jpg 2x, images/moon-1600_large_1x.jpg">
+                    This was my SECOND project in this class. I learned a lot about HTML and CSS.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="project3" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="myModalLabel3">mars</h4>
+                </div>
+                <div class="modal-body">
+                    <img class="img-responsive" srcset="images/mars-3200_large_2x.jpg 2x, images/mars-1600_large_1x.jpg">
+                    This was my THIRD project in this class. I learned a lot about HTML and CSS.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="js/jQuery.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+  </body>
+</html>
