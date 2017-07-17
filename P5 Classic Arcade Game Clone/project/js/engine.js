@@ -59,6 +59,21 @@ var Engine = (function(global) {
         win.requestAnimationFrame(main);
     }
 
+    var Sound = function (src) {
+        this.sound = document.createElement("audio");
+        this.sound.src = src;
+        this.sound.setAttribute("preload", "auto");
+        this.sound.setAttribute("controls", "none");
+        this.sound.style.display = "none";
+        document.body.appendChild(this.sound);
+        this.play = function(){
+            this.sound.play();
+        };
+        this.stop = function(){
+            this.sound.pause();
+        }
+    };
+
     /* This function does some initial setup that should only occur once,
      * particularly setting the lastTime variable that is required for the
      * game loop.
@@ -67,6 +82,9 @@ var Engine = (function(global) {
         reset();
         lastTime = Date.now();
         main();
+        mySound = new Sound('music/over.mp3');
+        myMusic = new Sound('music/theme.mp3');
+        // myMusic.play();
     }
 
     /* This function is called by main (our game loop) and itself calls all
@@ -80,7 +98,7 @@ var Engine = (function(global) {
      */
     function update(dt) {
         updateEntities(dt);
-        // checkCollisions();
+        checkCollisions();
     }
 
     /* This is called by the update function and loops through all of the
@@ -95,6 +113,19 @@ var Engine = (function(global) {
             enemy.update(dt);
         });
         player.update();
+    }
+
+    function checkCollisions() {
+        allEnemies.forEach(function(enemy) {
+            if (enemy.x < player.x + player.width &&
+                enemy.x + enemy.width > player.x &&
+                enemy.y < player.y + player.height &&
+                enemy.height + enemy.y > player.y) {
+                mySound.play();
+                player.x = 101*2;
+                player.y = 83*4 + 83/3*2;
+            }
+        });
     }
 
     /* This function initially draws the "game level", it will then call
