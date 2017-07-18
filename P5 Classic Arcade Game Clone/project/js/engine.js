@@ -82,9 +82,11 @@ var Engine = (function(global) {
         reset();
         lastTime = Date.now();
         main();
-        mySound = new Sound('music/over.mp3');
-        myMusic = new Sound('music/theme.mp3');
-        // myMusic.play();
+        lose = new Sound('music/lose.mp3');
+        succeed = new Sound('music/succeed.mp3');
+        theme = new Sound('music/theme.mp3');
+
+        theme.play();
     }
 
     /* This function is called by main (our game loop) and itself calls all
@@ -121,9 +123,9 @@ var Engine = (function(global) {
                 enemy.x + enemy.width > player.x &&
                 enemy.y < player.y + player.height &&
                 enemy.height + enemy.y > player.y) {
-                mySound.play();
-                player.x = 101*2;
-                player.y = 83*4 + 83/3*2;
+                lose.play();
+                player.x = cCol(3);
+                player.y = cRow(6);
             }
         });
     }
@@ -139,12 +141,12 @@ var Engine = (function(global) {
          * for that particular row of the game level.
          */
         var rowImages = [
-                'images/water-block.png',   // Top row is water
-                'images/stone-block.png',   // Row 1 of 3 of stone
-                'images/stone-block.png',   // Row 2 of 3 of stone
-                'images/stone-block.png',   // Row 3 of 3 of stone
-                'images/grass-block.png',   // Row 1 of 2 of grass
-                'images/grass-block.png'    // Row 2 of 2 of grass
+                'images/block-water.png',   // Top row is water
+                'images/block-stone.png',   // Row 1 of 3 of stone
+                'images/block-stone.png',   // Row 2 of 3 of stone
+                'images/block-stone.png',   // Row 3 of 3 of stone
+                'images/block-stone.png',   // Row 1 of 2 of grass
+                'images/block-grass.png'    // Row 2 of 2 of grass
             ],
             numRows = 6,
             numCols = 5,
@@ -178,11 +180,14 @@ var Engine = (function(global) {
         /* Loop through all of the objects within the allEnemies array and call
          * the render function you have defined.
          */
+        barrier.render();
+
         allEnemies.forEach(function(enemy) {
             enemy.render();
         });
 
         player.render();
+        info.render();
     }
 
     /* This function does nothing but it could have been a good place to
@@ -198,11 +203,13 @@ var Engine = (function(global) {
      * all of these images are properly loaded our game will start.
      */
     Resources.load([
-        'images/stone-block.png',
-        'images/water-block.png',
-        'images/grass-block.png',
+        'images/block-stone.png',
+        'images/block-water.png',
+        'images/block-grass.png',
         'images/enemy-bug.png',
-        'images/char-boy.png'
+        'images/char-boy.png',
+        'images/Heart.png',
+        'images/Rock.png'
     ]);
     Resources.onReady(init);
 

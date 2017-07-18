@@ -14,6 +14,13 @@ Van.prototype.grab = function () {
     
 };
 
+var zed = new Car(3);
+zed.move();
+
+var amy = new Van(9);
+amy.move();
+
+
 // var Car = function (loc) {
 //     var obj = {loc: loc};
 //     obj.move = function () {
@@ -37,3 +44,13 @@ Van.prototype.grab = function () {
 //     };
 //     return obj;
 // };
+
+// var amy = Van(1);
+// amy.move();
+// var ben = Van(9);
+// ben.move();
+// var cal = Cop(2);
+// cal.move();
+// cal.call();
+//
+// console.log(amy);
