@@ -1,10 +1,10 @@
 // Convert number of columns or rows
 function cCol(col) {
-    return (col-1)*101
+    return (col-1)*101;
 }
 
 function cRow(row) {
-    return (row-2)*83+83/3*2
+    return (row-2)*83+83/3*2;
 }
 
 var Sound = function (src) {
@@ -27,8 +27,8 @@ Sound.prototype.stop = function(){
 var die = new Sound('music/die.mp3'),
     river = new Sound('music/river.mp3'),
     theme = new Sound('music/theme.mp3');
-    theme.sound.setAttribute("loop", "loop");
-    kiss = new Sound('music/kiss.mp3');
+theme.sound.setAttribute("loop", "loop");
+kiss = new Sound('music/kiss.mp3');
 
 // Enemies our player must avoid
 var Enemy = function(speed, col, row) {
@@ -44,8 +44,8 @@ var Enemy = function(speed, col, row) {
 };
 
 // For checkCollisions
-Enemy.prototype.width = 101/1.5;
-Enemy.prototype.height = 171/3;
+Enemy.prototype.WIDTH = 101/1.5;
+Enemy.prototype.HEIGHT = 171/3;
 
 // Update the enemy's position, required method for game
 // Parameter: dt, a time delta between ticks
@@ -56,15 +56,15 @@ Enemy.prototype.update = function(dt) {
     if (!pause && !stop) {
         var speed = this.speed;
         if (info.level === 2) {
-            speed *= 1.5
+            speed *= 1.5;
         }
         if (player.god){
-            speed /= 5
+            speed /= 5;
         }
         this.x += speed * dt;
     }
     if (this.x > ctx.canvas.width*2) {
-        this.x = cCol(0)
+        this.x = cCol(0);
     }
 };
 
@@ -81,7 +81,7 @@ var Player = function () {
     this.sprite = 'images/char-boy.png';
     this.x = cCol(3);
     this.y = cRow(6);
-    this.god = false
+    this.god = false;
 };
 
 Player.prototype = Object.create(Enemy.prototype);
@@ -102,48 +102,48 @@ Player.prototype.cross = function (move, x, y, positions) {
     // Try to cross barrier from which direction
     if (move === 'left') {
         axisX = -101;
-        axisY = 0
+        axisY = 0;
     } else if (move === 'right') {
         axisX = 101;
-        axisY = 0
+        axisY = 0;
     } else if (move === 'up') {
         axisX = 0;
-        axisY = -83
+        axisY = -83;
     } else if (move === 'down') {
         axisX = 0;
-        axisY = 83
+        axisY = 83;
     }
     for (var i = 0; i < positions.length; i++) {
         if ((x+axisX) === cCol(positions[i].col) && Math.floor(y+axisY) === Math.floor(cRow(positions[i].row))) {
-            return false
+            return false;
         }
     }
-    return true
+    return true;
 };
 
 Player.prototype.move = function (op) {
     if (!pause && !stop) {
         var positions;
         if (info.level === 1) {
-            positions = barrier.rock.positions
+            positions = barrier.rock.positions;
         } else {
-            positions = barrier.tree.positions
+            positions = barrier.tree.positions;
         }
         if (op === 'left' && this.x !== 0) {
             if (this.cross('left', this.x, this.y, positions)) {
-                this.x -= ctx.canvas.block.width
+                this.x -= ctx.canvas.block.width;
             }
         } else if (op === 'right' && this.x !== 404) {
             if (this.cross('right', this.x, this.y, positions)) {
-                this.x += ctx.canvas.block.width
+                this.x += ctx.canvas.block.width;
             }
         } else if (op === 'up' && Math.floor(this.y) !== -28) {
             if (this.cross('up', this.x, this.y, positions)) {
-                this.y -= ctx.canvas.block.height
+                this.y -= ctx.canvas.block.height;
             }
         } else if (op === 'down' && Math.floor(this.y) !== 387) {
             if (this.cross('down', this.x, this.y, positions)) {
-                this.y += ctx.canvas.block.height
+                this.y += ctx.canvas.block.height;
             }
         }
     }
@@ -152,19 +152,19 @@ Player.prototype.move = function (op) {
 Player.prototype.input = function (op) {
     if (op === 'pause' && !pause && !stop) {
         pause = true;
-        theme.stop()
+        theme.stop();
     } else if (op === 'pause' && pause && !stop) {
         pause = false;
-        theme.play()
+        theme.play();
     }
     if (op === 'restart' && info.life === 0) {
         stop = false;
         theme.play();
         info.life = 3;
-        info.level = 1
+        info.level = 1;
     }
     if (op === 'god') {
-        this.god = true
+        this.god = true;
     }
 };
 
@@ -178,7 +178,7 @@ var Barrier = function () {
             {'col': 3, 'row': 3},
             {'col': 4, 'row': 4},
             {'col': 5, 'row': 2}
-    ]
+        ]
     };
     this.tree = {
         'image' : 'images/Tree Ugly.png',
@@ -192,7 +192,7 @@ var Barrier = function () {
             {'col': 4, 'row': 3},
             {'col': 5, 'row': 5}
         ]
-    }
+    };
 };
 
 Barrier.prototype.render = function () {
@@ -200,10 +200,10 @@ Barrier.prototype.render = function () {
         positions;
     if (info.level === 1) {
         sprite = this.rock.image;
-        positions = this.rock.positions
+        positions = this.rock.positions;
     } else {
         sprite = this.tree.image;
-        positions = this.tree.positions
+        positions = this.tree.positions;
     }
     positions.forEach(function (pos) {
         ctx.drawImage(Resources.get(sprite), cCol(pos.col), cRow(pos.row));
@@ -214,7 +214,7 @@ var Key = function () {
     this.sprite = 'images/Key.png';
     this.x = cCol(1);
     this.y = cRow(1);
-    this.get = false
+    this.get = false;
 };
 
 Key.prototype = Object.create(Enemy.prototype);
@@ -222,12 +222,12 @@ Key.prototype.constructor = Key;
 
 Key.prototype.update = function () {
     if (info.level === 2 && Math.floor(player.y) === Math.floor(cRow(1)) && player.x === cCol(1)) {
-        this.get = true
+        this.get = true;
     }
     // Player bring key
     if (this.get) {
         this.x = player.x + 30;
-        this.y = player.y + 50
+        this.y = player.y + 50;
     }
 };
 
@@ -239,12 +239,12 @@ var Treasure = function () {
     };
     this.x = cCol(3);
     this.y = cRow(1);
-    this.open = false
+    this.open = false;
 };
 
 Treasure.prototype.update = function () {
     if (info.level === 2 && key.get && Math.floor(player.y) === Math.floor(cRow(2)) && player.x === cCol(3)) {
-        this.open = true
+        this.open = true;
     }
 };
 
@@ -271,7 +271,7 @@ var Info = function () {
     this.again = 'Press Enter to Play Again';
     this.thank = 'THANK YOU';
     this.save = 'FOR SAVING ME';
-    this.bug = 'FROM BUGS!'
+    this.bug = 'FROM BUGS!';
 };
 
 Info.prototype.render = function () {
@@ -307,7 +307,7 @@ Info.prototype.render = function () {
         ctx.fillText(this.again, ctx.canvas.width/2, cCol(1.5)+310);
 
         stop = true;
-        theme.stop()
+        theme.stop();
     }
 
     // Win
@@ -322,7 +322,7 @@ Info.prototype.render = function () {
         ctx.fillText(this.bug, 105, 175);
 
         if (!stop) {
-            kiss.play()
+            kiss.play();
         }
         stop = true;
         theme.stop();
@@ -334,7 +334,7 @@ Info.prototype.render = function () {
 // Place the player object in a variable called player
 
 var allEnemies = [new Enemy(120,4,2), new Enemy(160,2,3), new Enemy(220,3,4), new Enemy(260,1,5),
-                  new Enemy(280,-6,2), new Enemy(240,-8,3), new Enemy(280,-7,4), new Enemy(240,-9,5)],
+        new Enemy(280,-6,2), new Enemy(240,-8,3), new Enemy(280,-7,4), new Enemy(240,-9,5)],
     player = new Player(),
     barrier = new Barrier(),
     key = new Key(),
@@ -359,5 +359,5 @@ document.addEventListener('keyup', function(e) {
     };
 
     player.move(allowedKeys[e.keyCode]);
-    player.input(allowedKeys[e.keyCode])
+    player.input(allowedKeys[e.keyCode]);
 });

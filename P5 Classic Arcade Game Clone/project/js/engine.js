@@ -108,10 +108,10 @@ var Engine = (function(global) {
 
     function checkCollisions() {
         allEnemies.forEach(function(enemy) {
-            if (enemy.x < player.x + player.width &&
-                enemy.x + enemy.width > player.x &&
-                enemy.y < player.y + player.height &&
-                enemy.height + enemy.y > player.y) {
+            if (enemy.x < player.x + player.WIDTH &&
+                enemy.x + enemy.WIDTH > player.x &&
+                enemy.y < player.y + player.HEIGHT &&
+                enemy.HEIGHT + enemy.y > player.y) {
                 die.play();
                 info.life -= 1;
                 player.x = cCol(3);
