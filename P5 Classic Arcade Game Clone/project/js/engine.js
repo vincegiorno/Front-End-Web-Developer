@@ -102,7 +102,8 @@ var Engine = (function(global) {
             enemy.update(dt);
         });
         player.update();
-        key.update()
+        key.update();
+        treasure.update();
     }
 
     function checkCollisions() {
@@ -188,6 +189,9 @@ var Engine = (function(global) {
          * the render function you have defined.
          */
         barrier.render();
+        if (info.level === 2) {
+            treasure.render();
+        }
 
         allEnemies.forEach(function(enemy) {
             enemy.render();
@@ -195,10 +199,9 @@ var Engine = (function(global) {
 
         player.render();
 
-        if (info.level === 2) {
-            key.render()
+        if (info.level === 2 && treasure.open == false) {
+            key.render();
         }
-
         info.render();
     }
 
@@ -228,7 +231,8 @@ var Engine = (function(global) {
         'images/Key.png',
         'images/chest-closed.png',
         'images/chest-open.png',
-        'images/char-cat-girl.png'
+        'images/char-cat-girl.png',
+        'images/SpeechBubble.png'
     ]);
     Resources.onReady(init);
 

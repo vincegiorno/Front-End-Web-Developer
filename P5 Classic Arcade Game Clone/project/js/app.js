@@ -13,18 +13,21 @@ var Sound = function (src) {
     this.sound.setAttribute("controls", "none");
     this.sound.style.display = "none";
     document.body.appendChild(this.sound);
-    this.play = function(){
-        this.sound.play();
-    };
-    this.stop = function(){
-        this.sound.pause();
-    }
+};
+
+Sound.prototype.play = function(){
+    this.sound.play();
+};
+
+Sound.prototype.stop = function(){
+    this.sound.pause();
 };
 
 var die = new Sound('music/die.mp3'),
     succeed = new Sound('music/succeed.mp3'),
     theme = new Sound('music/theme.mp3');
     theme.sound.setAttribute("loop", "loop");
+    kiss = new Sound('music/kiss.mp3');
 
 // Enemies our player must avoid
 var Enemy = function(speed, col, row) {
@@ -73,74 +76,6 @@ var Player = function () {
     this.sprite = 'images/char-boy.png';
     this.x = cCol(3);
     this.y = cRow(6);
-    this.cross = function (move, x, y, positions) {
-        var axisX, axisY;
-        if (move === 'left') {
-            axisX = -101;
-            axisY = 0
-        } else if (move === 'right') {
-            axisX = 101;
-            axisY = 0
-        } else if (move === 'up') {
-            axisX = 0;
-            axisY = -83
-        } else if (move === 'down') {
-            axisX = 0;
-            axisY = 83
-        }
-        for (var i = 0; i < positions.length; i++) {
-            if ((x+axisX) === cCol(positions[i].col) && Math.floor(y+axisY) === Math.floor(cRow(positions[i].row))) {
-                return false
-            }
-        }
-        return true
-    };
-    this.move = function (op) {
-        if (pause === false && stop === false) {
-            var positions;
-            if (info.level === 1) {
-                positions = barrier.rock.positions
-            } else {
-                positions = barrier.tree.positions
-            }
-            if (op === 'left' && this.x !== 0) {
-                if (this.cross('left', this.x, this.y, positions)) {
-                    this.x -= ctx.canvas.block.width
-                }
-            }
-            else if (op === 'right' && this.x !== 404) {
-                if (this.cross('right', this.x, this.y, positions)) {
-                    this.x += ctx.canvas.block.width
-                }
-            }
-            else if (op === 'up' && Math.floor(this.y) !== -28) {
-                if (this.cross('up', this.x, this.y, positions)) {
-                    this.y -= ctx.canvas.block.height
-                }
-            }
-            else if (op === 'down' && Math.floor(this.y) !== 387) {
-                if (this.cross('down', this.x, this.y, positions)) {
-                    this.y += ctx.canvas.block.height
-                }
-            }
-        }
-    };
-    this.input = function (op) {
-        if (op === 'pause' && pause === false && stop === false) {
-            pause = true;
-            theme.stop()
-        }
-        else if (op === 'pause' && pause === true && stop === false) {
-            pause = false;
-            theme.play()
-        }
-        if (op === 'restart') {
-            stop = false;
-            theme.play();
-            info.life = 3;
-            info.level = 1
-        }
-    }
 };
 
 Player.prototype = Object.create(Enemy.prototype);
@@ -152,6 +87,73 @@ Player.prototype.update = function () {
         info.level += 1;
         this.x = cCol(3);
         this.y = cRow(6);
+    }
+};
+
+Player.prototype.cross = function (move, x, y, positions) {
+    var axisX, axisY;
+    if (move === 'left') {
+        axisX = -101;
+        axisY = 0
+    } else if (move === 'right') {
+        axisX = 101;
+        axisY = 0
+    } else if (move === 'up') {
+        axisX = 0;
+        axisY = -83
+    } else if (move === 'down') {
+        axisX = 0;
+        axisY = 83
+    }
+    for (var i = 0; i < positions.length; i++) {
+        if ((x+axisX) === cCol(positions[i].col) && Math.floor(y+axisY) === Math.floor(cRow(positions[i].row))) {
+            return false
+        }
+    }
+    return true
+};
+
+Player.prototype.move = function (op) {
+    if (pause === false && stop === false) {
+        var positions;
+        if (info.level === 1) {
+            positions = barrier.rock.positions
+        } else {
+            positions = barrier.tree.positions
+        }
+        if (op === 'left' && this.x !== 0) {
+            if (this.cross('left', this.x, this.y, positions)) {
+                this.x -= ctx.canvas.block.width
+            }
+        } else if (op === 'right' && this.x !== 404) {
+            if (this.cross('right', this.x, this.y, positions)) {
+                this.x += ctx.canvas.block.width
+            }
+        } else if (op === 'up' && Math.floor(this.y) !== -28) {
+            if (this.cross('up', this.x, this.y, positions)) {
+                this.y -= ctx.canvas.block.height
+            }
+        } else if (op === 'down' && Math.floor(this.y) !== 387) {
+            if (this.cross('down', this.x, this.y, positions)) {
+                this.y += ctx.canvas.block.height
+            }
+        }
+    }
+};
+
+Player.prototype.input = function (op) {
+    if (op === 'pause' && pause === false && stop === false) {
+        pause = true;
+        theme.stop()
+    } else if (op === 'pause' && pause === true && stop === false) {
+        pause = false;
+        theme.play()
+    }
+    if (op === 'restart' && info.life === 0) {
+        stop = false;
+        theme.play();
+        info.life = 3;
+        info.level = 1
     }
 };
 
@@ -209,24 +211,73 @@ Key.prototype.constructor = Key;
 
 Key.prototype.update = function () {
     if (info.level === 2 && Math.floor(player.y) === Math.floor(cRow(1)) && player.x === cCol(1)) {
-        key.get = true
+        this.get = true
     }
-    if (key.get === true) {
-        key.x = player.x + 30;
-        key.y = player.y + 50
+    if (this.get === true) {
+        this.x = player.x + 30;
+        this.y = player.y + 50
+    }
+};
+
+var Treasure = function () {
+    this.sprite = {
+        'closed' : 'images/chest-closed.png',
+        'open' : 'images/chest-open.png',
+        'girl' : 'images/char-cat-girl.png',
+        'bug' : 'images/enemy-bug.png'
+    };
+    this.x = cCol(3);
+    this.y = cRow(1);
+    this.open = false
+};
+
+Treasure.prototype.update = function () {
+    if (info.level === 2 && key.get === true && Math.floor(player.y) === Math.floor(cRow(2)) && player.x === cCol(3)) {
+        this.open = true
+    }
+};
+
+Treasure.prototype.render = function () {
+    if (info.level === 2) {
+        if (this.open === false) {
+            ctx.drawImage(Resources.get(this.sprite.closed), this.x, this.y);
+        } else if (this.open === true) {
+            ctx.drawImage(Resources.get(this.sprite.open), this.x, this.y);
+            ctx.drawImage(Resources.get(this.sprite.girl), this.x, this.y);
+        }
     }
 };
 
 var Info = function () {
     this.level = 1;
-    this.sprite = 'images/Heart.png';
+    this.sprite = {
+        'heart' : 'images/Heart.png',
+        'speech' : 'images/SpeechBubble.png'
+    };
     this.life = 3;
     this.pause = 'Press "Space" to pause or resume';
     this.lose = 'GAME OVER!';
-    this.again = 'Press Enter to Play Again'
+    this.again = 'Press Enter to Play Again';
+    this.thank = 'THANK YOU';
+    this.save = 'FOR SAVING ME';
+    this.from = 'FROM BUGS!'
 };
 
 Info.prototype.render = function () {
+    ctx.textAlign = 'start';
+    ctx.font = '18pt sans-serif';
+    ctx.fillStyle = 'yellow';
+    ctx.fillText('Lvl: ' + this.level, 420, 100);
+
+    ctx.font = '15pt sans-serif';
+    ctx.fillStyle = 'black';
+    ctx.fillText('✖  ' + this.life, 45, 575);
+    ctx.drawImage(Resources.get(this.sprite.heart), 10, 540, 101/3.5, 171/3.5);
+
+    ctx.font = '11pt sans-serif';
+    ctx.fillStyle = 'white';
+    ctx.fillText(this.pause, 270, 575);
+
     if (this.life === 0) {
         ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
         ctx.fillRect(cCol(1.5), cRow(3.5), cCol(5), cCol(3.5));
@@ -244,19 +295,22 @@ Info.prototype.render = function () {
         theme.stop()
     }
 
-    ctx.textAlign = 'start';
-    ctx.font = '18pt sans-serif';
-    ctx.fillStyle = 'yellow';
-    ctx.fillText('Lvl: ' + this.level, 420, 100);
+    if (treasure.open === true) {
+        ctx.drawImage(Resources.get(this.sprite.speech), 0, 80, 220, 171);
 
-    ctx.font = '15pt sans-serif';
-    ctx.fillStyle = 'black';
-    ctx.fillText('✖  ' + this.life, 45, 575);
-    ctx.drawImage(Resources.get(this.sprite), 10, 540, 101/3.5, 171/3.5);
+        ctx.textAlign = 'center';
+        ctx.font = '16pt sans-serif';
+        ctx.fillStyle = '#e5446d';
+        ctx.fillText(this.thank, 105, 115);
+        ctx.fillText(this.save, 105, 145);
+        ctx.fillText(this.from, 105, 175);
 
-    ctx.font = '11pt sans-serif';
-    ctx.fillStyle = 'white';
-    ctx.fillText(this.pause, 270, 575);
+        if (stop === false) {
+            kiss.play()
+        }
+        stop = true;
+        theme.stop();
+    }
 };
 
 // Now instantiate your objects.
@@ -267,6 +321,7 @@ var allEnemies = [new Enemy(100,1,2), new Enemy(200,1,3)];
 var player = new Player();
 var barrier = new Barrier();
 var key = new Key();
+var treasure = new Treasure();
 var info = new Info();
 
 var pause = false;
