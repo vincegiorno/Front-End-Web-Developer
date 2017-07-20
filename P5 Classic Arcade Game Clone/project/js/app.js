@@ -1,3 +1,31 @@
+function cCol(col) {
+    return (col-1)*101
+}
+
+function cRow(row) {
+    return (row-2)*83+83/3*2
+}
+
+var Sound = function (src) {
+    this.sound = document.createElement("audio");
+    this.sound.src = src;
+    this.sound.setAttribute("preload", "auto");
+    this.sound.setAttribute("controls", "none");
+    this.sound.style.display = "none";
+    document.body.appendChild(this.sound);
+    this.play = function(){
+        this.sound.play();
+    };
+    this.stop = function(){
+        this.sound.pause();
+    }
+};
+
+var die = new Sound('music/die.mp3'),
+    succeed = new Sound('music/succeed.mp3'),
+    theme = new Sound('music/theme.mp3');
+    theme.sound.setAttribute("loop", "loop");
+
 // Enemies our player must avoid
 var Enemy = function(speed, col, row) {
     // Variables applied to each of our instances go here,
@@ -6,10 +34,9 @@ var Enemy = function(speed, col, row) {
     // The image/sprite for our enemies, this uses
     // a helper we've provided to easily load images
     this.sprite = 'images/enemy-bug.png';
-    this.width = 101/2;
+    this.width = 101/1.5;
     this.height = 171/3;
     this.speed = speed;
-    this.pause = false;
     this.x = cCol(col);
     this.y = cRow(row);
 };
@@ -20,10 +47,10 @@ Enemy.prototype.update = function(dt) {
     // You should multiply any movement by the dt parameter
     // which will ensure the game runs at the same speed for
     // all computers.
-    if (pause === false) {
-        this.x += this.speed*dt;
+    if (pause === false && stop === false) {
+        this.x += this.speed * dt;
     }
-    if (this.x > 505*1.5) {
+    if (this.x > ctx.canvas.width*1.5) {
         this.x = cCol(0)
     }
 };
@@ -39,15 +66,38 @@ Enemy.prototype.render = function() {
 
 var Player = function () {
     this.sprite = 'images/char-boy.png';
-    this.width = 101/2;
+    this.width = 101/1.5;
     this.height = 171/3;
     this.x = cCol(3);
     this.y = cRow(6);
+    this.cross = function (move, x, y, positions) {
+        var axisX, axisY;
+        if (move === 'left') {
+            axisX = -101;
+            axisY = 0
+        } else if (move === 'right') {
+            axisX = 101;
+            axisY = 0
+        } else if (move === 'up') {
+            axisX = 0;
+            axisY = -83
+        } else if (move === 'down') {
+            axisX = 0;
+            axisY = 83
+        }
+        for (var i = 0; i < positions.length; i++) {
+            if ((x+axisX) === cCol(positions[i].col) && Math.floor(y+axisY) === Math.floor(cRow(positions[i].row))) {
+                return false
+            }
+        }
+        return true
+    };
 };
 
 Player.prototype.update = function () {
-    if (Math.floor(this.y) === Math.floor(cRow(1))) {
+    if (Math.floor(this.y) === Math.floor(cRow(1)) && info.level === 1) {
         succeed.play();
+        info.level += 1;
         this.x = cCol(3);
         this.y = cRow(6);
     }
@@ -58,40 +108,49 @@ Player.prototype.render = function () {
 };
 
 Player.prototype.handleInput = function (op) {
-    if (pause === false) {
+    if (pause === false && stop === false) {
         if (op === 'left' && this.x !== 0) {
-            if (leftBarrier(this.x, this.y, barrier.positions)) {
-                this.x -= 101
+            if (this.cross('left', this.x, this.y, barrier.positions)) {
+                this.x -= ctx.canvas.block.width
             }
         }
         else if (op === 'right' && this.x !== 404) {
-            if (rightBarrier(this.x, this.y, barrier.positions)) {
-                this.x += 101
+            if (this.cross('right', this.x, this.y, barrier.positions)) {
+                this.x += ctx.canvas.block.width
             }
         }
         else if (op === 'up' && Math.floor(this.y) !== -28) {
-            if (upBarrier(this.x, this.y, barrier.positions)) {
-                this.y -= 83
+            if (this.cross('up', this.x, this.y, barrier.positions)) {
+                this.y -= ctx.canvas.block.height
             }
         }
         else if (op === 'down' && Math.floor(this.y) !== 387) {
-            if (downBarrier(this.x, this.y, barrier.positions)) {
-                this.y += 83
+            if (this.cross('down', this.x, this.y, barrier.positions)) {
+                this.y += ctx.canvas.block.height
             }
         }
     }
-    if (op === 'pause' && pause === false) {
+    if (op === 'pause' && pause === false && stop === false) {
         pause = true;
         theme.stop()
     }
-    else if (op === 'pause' && pause === true) {
+    else if (op === 'pause' && pause === true && stop === false) {
         pause = false;
         theme.play()
+    }
+    if (op === 'restart') {
+        stop = false;
+        theme.play();
+        info.life = 3
     }
 };
 
 var Barrier = function () {
     this.sprite = 'images/Rock.png';
+    this.positions = [
+        {'col': 2, 'row': 2},
+        {'col': 4, 'row': 4}
+    ]
     this.positions = [
         {'col': 2, 'row': 2},
         {'col': 4, 'row': 4}
@@ -106,23 +165,45 @@ Barrier.prototype.render = function () {
 };
 
 var Info = function () {
-    this.text = 'Press "Space" to pause or resume';
+    this.level = 1;
     this.sprite = 'images/Heart.png';
     this.life = 3;
-    this.level = 1
+    this.pause = 'Press "Space" to pause or resume';
+    this.lose = 'GAME OVER!';
+    this.again = 'Press Enter to Play Again'
 };
 
 Info.prototype.render = function () {
+    if (this.life === 0) {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+        ctx.fillRect(cCol(1.5), cRow(3.5), cCol(5), cCol(3.5));
+
+        ctx.textAlign = 'center';
+        ctx.font = '20pt sans-serif';
+        ctx.fillStyle = 'yellow';
+        ctx.fillText(this.lose, ctx.canvas.width/2, cCol(1.5)+210);
+
+        ctx.font = '16pt sans-serif';
+        ctx.fillStyle = 'white';
+        ctx.fillText(this.again, ctx.canvas.width/2, cCol(1.5)+310);
+
+        stop = true;
+        theme.stop()
+    }
+
+    ctx.textAlign = 'start';
     ctx.font = '18pt sans-serif';
     ctx.fillStyle = 'yellow';
     ctx.fillText('Lvl: ' + this.level, 20, 100);
+
     ctx.font = '15pt sans-serif';
     ctx.fillStyle = 'black';
     ctx.fillText('✖  ' + this.life, 45, 575);
+    ctx.drawImage(Resources.get(this.sprite), 10, 540, 101/3.5, 171/3.5);
+
     ctx.font = '11pt sans-serif';
     ctx.fillStyle = 'white';
-    ctx.fillText(this.text, 270, 575);
-    ctx.drawImage(Resources.get(this.sprite), 10, 540, 101/3.5, 171/3.5);
+    ctx.fillText(this.pause, 270, 575);
 };
 
 // Now instantiate your objects.
@@ -131,53 +212,11 @@ Info.prototype.render = function () {
 
 var allEnemies = [new Enemy(100,1,2), new Enemy(200,1,3)];
 var player = new Player();
-var info = new Info();
 var barrier = new Barrier();
+var info = new Info();
+
 var pause = false;
-
-function cCol(col) {
-    return (col-1)*101
-}
-
-function cRow(row) {
-    return (row-2)*83+83/3*2
-}
-
-function leftBarrier(x, y, positions) {
-    for (var i = 0; i < positions.length; i++) {
-        if ((x-101) === cCol(positions[i].col) && Math.floor(y) === Math.floor(cRow(positions[i].row))) {
-            return false
-        }
-    }
-    return true
-}
-
-function rightBarrier(x, y, positions) {
-    for (var i = 0; i < positions.length; i++) {
-        if ((x+101) === cCol(positions[i].col) && Math.floor(y) === Math.floor(cRow(positions[i].row))) {
-            return false
-        }
-    }
-    return true
-}
-
-function upBarrier(x, y, positions) {
-    for (var i = 0; i < positions.length; i++) {
-        if ((x) === cCol(positions[i].col) && Math.floor(y-83) === Math.floor(cRow(positions[i].row))) {
-            return false
-        }
-    }
-    return true
-}
-
-function downBarrier(x, y, positions) {
-    for (var i = 0; i < positions.length; i++) {
-        if ((x) === cCol(positions[i].col) && Math.floor(y+83) === Math.floor(cRow(positions[i].row))) {
-            return false
-        }
-    }
-    return true
-}
+var stop = false;
 
 // This listens for key presses and sends the keys to your
 // Player.handleInput() method. You don't need to modify this.
@@ -187,6 +226,8 @@ document.addEventListener('keyup', function(e) {
         38: 'up',
         39: 'right',
         40: 'down',
+
+        13: 'restart',
         32: 'pause'
     };
 

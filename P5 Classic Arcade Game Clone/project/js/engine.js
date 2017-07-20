@@ -29,6 +29,11 @@ var Engine = (function(global) {
     canvas.height = 606;
     doc.body.appendChild(canvas);
 
+    canvas.block = {
+        'width' : 101,
+        'height' : 83
+    };
+
     /* This function serves as the kickoff point for the game loop itself
      * and handles properly calling the update and render methods.
      */
@@ -59,21 +64,6 @@ var Engine = (function(global) {
         win.requestAnimationFrame(main);
     }
 
-    var Sound = function (src) {
-        this.sound = document.createElement("audio");
-        this.sound.src = src;
-        this.sound.setAttribute("preload", "auto");
-        this.sound.setAttribute("controls", "none");
-        this.sound.style.display = "none";
-        document.body.appendChild(this.sound);
-        this.play = function(){
-            this.sound.play();
-        };
-        this.stop = function(){
-            this.sound.pause();
-        }
-    };
-
     /* This function does some initial setup that should only occur once,
      * particularly setting the lastTime variable that is required for the
      * game loop.
@@ -82,9 +72,6 @@ var Engine = (function(global) {
         reset();
         lastTime = Date.now();
         main();
-        lose = new Sound('music/lose.mp3');
-        succeed = new Sound('music/succeed.mp3');
-        theme = new Sound('music/theme.mp3');
 
         theme.play();
     }
@@ -123,7 +110,8 @@ var Engine = (function(global) {
                 enemy.x + enemy.width > player.x &&
                 enemy.y < player.y + player.height &&
                 enemy.height + enemy.y > player.y) {
-                lose.play();
+                die.play();
+                info.life -= 1;
                 player.x = cCol(3);
                 player.y = cRow(6);
             }
@@ -140,17 +128,32 @@ var Engine = (function(global) {
         /* This array holds the relative URL to the image used
          * for that particular row of the game level.
          */
-        var rowImages = [
-                'images/block-water.png',   // Top row is water
-                'images/block-stone.png',   // Row 1 of 3 of stone
-                'images/block-stone.png',   // Row 2 of 3 of stone
-                'images/block-stone.png',   // Row 3 of 3 of stone
-                'images/block-stone.png',   // Row 1 of 2 of grass
-                'images/block-grass.png'    // Row 2 of 2 of grass
-            ],
-            numRows = 6,
+        ctx.fillStyle = 'white';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        if (info.level === 1) {
+            rowImages = [
+                    'images/block-water.png',   // Top row is water
+                    'images/block-stone.png',   // Row 1 of 4 of stone
+                    'images/block-stone.png',   // Row 2 of 4 of stone
+                    'images/block-stone.png',   // Row 3 of 4 of stone
+                    'images/block-stone.png',   // Row 4 of 4 of stone
+                    'images/block-grass.png'    // Bottom row is grass
+                ]
+        } else {
+            rowImages = [
+                'images/block-dirt.png',   // Row 1 of 4 of stone
+                'images/block-dirt.png',   // Row 2 of 4 of stone
+                'images/block-dirt.png',   // Row 3 of 4 of stone
+                'images/block-dirt.png',   // Row 4 of 4 of stone
+                'images/block-dirt.png',    // Bottom row is grass
+                'images/block-water.png'   // Top row is water
+            ]
+        }
+
+        var numRows = 6,
             numCols = 5,
-            row, col;
+            row, col, rowImages;
 
         /* Loop through the number of rows and columns we've defined above
          * and, using the rowImages array, draw the correct image for that
@@ -165,7 +168,7 @@ var Engine = (function(global) {
                  * so that we get the benefits of caching these images, since
                  * we're using them over and over.
                  */
-                ctx.drawImage(Resources.get(rowImages[row]), col * 101, row * 83);
+                ctx.drawImage(Resources.get(rowImages[row]), col * canvas.block.width, row * canvas.block.height);
             }
         }
 
@@ -187,6 +190,7 @@ var Engine = (function(global) {
         });
 
         player.render();
+
         info.render();
     }
 
@@ -208,8 +212,11 @@ var Engine = (function(global) {
         'images/block-grass.png',
         'images/enemy-bug.png',
         'images/char-boy.png',
+
         'images/Heart.png',
-        'images/Rock.png'
+        'images/Rock.png',
+        'images/block-dirt.png',
+        'images/Tree Ugly.png'
     ]);
     Resources.onReady(init);
 
