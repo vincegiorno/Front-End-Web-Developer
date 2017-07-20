@@ -48,7 +48,11 @@ Enemy.prototype.update = function(dt) {
     // which will ensure the game runs at the same speed for
     // all computers.
     if (pause === false && stop === false) {
-        this.x += this.speed * dt;
+        var speed = this.speed;
+        if (info.level === 2) {
+            speed *= 1.5
+        }
+        this.x += speed * dt;
     }
     if (this.x > ctx.canvas.width*1.5) {
         this.x = cCol(0)
@@ -156,30 +160,27 @@ var Barrier = function () {
     this.rock = {
         'image' : 'images/Rock.png',
         'positions' : [
-            {'col': 2, 'row': 2},
-            {'col': 4, 'row': 4}
+            {'col': 1, 'row': 2},
+            {'col': 2, 'row': 5},
+            {'col': 3, 'row': 2},
+            {'col': 3, 'row': 3},
+            {'col': 4, 'row': 4},
+            {'col': 5, 'row': 2}
     ]
     };
     this.tree = {
         'image' : 'images/Tree Ugly.png',
         'positions' : [
+            {'col': 1, 'row': 4},
+            {'col': 2, 'row': 1},
+            {'col': 2, 'row': 2},
             {'col': 3, 'row': 3},
+            {'col': 3, 'row': 4},
+            {'col': 4, 'row': 1},
+            {'col': 4, 'row': 3},
             {'col': 5, 'row': 5}
         ]
     }
-    // if (info.level === 1) {
-    //     this.sprite = 'images/Rock.png';
-    //     this.positions = [
-    //         {'col': 2, 'row': 2},
-    //         {'col': 4, 'row': 4}
-    //     ]
-    // } else {
-    //     this.sprite = 'Tree Ugly.png';
-    //     this.positions = [
-    //         {'col': 3, 'row': 3},
-    //         {'col': 5, 'row': 5}
-    //     ]
-    // }
 };
 
 Barrier.prototype.render = function () {
@@ -243,15 +244,10 @@ Info.prototype.render = function () {
 // Place all enemy objects in an array called allEnemies
 // Place the player object in a variable called player
 
-var info = new Info();
+var allEnemies = [new Enemy(100,1,2), new Enemy(200,1,3)];
 var player = new Player();
-
-if (info.level === 1) {
-    var allEnemies = [new Enemy(100,1,2), new Enemy(200,1,3)];
-    var barrier = new Barrier();
-} else {
-
-}
+var barrier = new Barrier();
+var info = new Info();
 
 var pause = false;
 var stop = false;
