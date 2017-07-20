@@ -43,6 +43,10 @@ var Enemy = function(speed, col, row) {
     this.y = cRow(row);
 };
 
+// For checkCollisions
+Enemy.prototype.width = 101/1.5;
+Enemy.prototype.height = 171/3;
+
 // Update the enemy's position, required method for game
 // Parameter: dt, a time delta between ticks
 Enemy.prototype.update = function(dt) {
@@ -68,10 +72,6 @@ Enemy.prototype.update = function(dt) {
 Enemy.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 };
-
-// For checkCollisions
-Enemy.prototype.width = 101/1.5;
-Enemy.prototype.height = 171/3;
 
 // Now write your own player class
 // This class requires an update(), render() and
@@ -334,15 +334,15 @@ Info.prototype.render = function () {
 // Place the player object in a variable called player
 
 var allEnemies = [new Enemy(120,4,2), new Enemy(160,2,3), new Enemy(220,3,4), new Enemy(260,1,5),
-                  new Enemy(280,-6,2), new Enemy(240,-8,3), new Enemy(280,-7,4), new Enemy(240,-9,5)];
-var player = new Player();
-var barrier = new Barrier();
-var key = new Key();
-var treasure = new Treasure();
-var info = new Info();
+                  new Enemy(280,-6,2), new Enemy(240,-8,3), new Enemy(280,-7,4), new Enemy(240,-9,5)],
+    player = new Player(),
+    barrier = new Barrier(),
+    key = new Key(),
+    treasure = new Treasure(),
+    info = new Info(),
 
-var pause = false;
-var stop = false;
+    pause = false,
+    stop = false;
 
 // This listens for key presses and sends the keys to your
 // Player.move() method. You don't need to modify this.
