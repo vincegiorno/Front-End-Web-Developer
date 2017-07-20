@@ -109,23 +109,29 @@ Player.prototype.render = function () {
 
 Player.prototype.handleInput = function (op) {
     if (pause === false && stop === false) {
+        var positions;
+        if (info.level === 1) {
+            positions = barrier.rock.positions
+        } else {
+            positions = barrier.tree.positions
+        }
         if (op === 'left' && this.x !== 0) {
-            if (this.cross('left', this.x, this.y, barrier.positions)) {
+            if (this.cross('left', this.x, this.y, positions)) {
                 this.x -= ctx.canvas.block.width
             }
         }
         else if (op === 'right' && this.x !== 404) {
-            if (this.cross('right', this.x, this.y, barrier.positions)) {
+            if (this.cross('right', this.x, this.y, positions)) {
                 this.x += ctx.canvas.block.width
             }
         }
         else if (op === 'up' && Math.floor(this.y) !== -28) {
-            if (this.cross('up', this.x, this.y, barrier.positions)) {
+            if (this.cross('up', this.x, this.y, positions)) {
                 this.y -= ctx.canvas.block.height
             }
         }
         else if (op === 'down' && Math.floor(this.y) !== 387) {
-            if (this.cross('down', this.x, this.y, barrier.positions)) {
+            if (this.cross('down', this.x, this.y, positions)) {
                 this.y += ctx.canvas.block.height
             }
         }
@@ -141,25 +147,52 @@ Player.prototype.handleInput = function (op) {
     if (op === 'restart') {
         stop = false;
         theme.play();
-        info.life = 3
+        info.life = 3;
+        info.level = 1
     }
 };
 
 var Barrier = function () {
-    this.sprite = 'images/Rock.png';
-    this.positions = [
-        {'col': 2, 'row': 2},
-        {'col': 4, 'row': 4}
+    this.rock = {
+        'image' : 'images/Rock.png',
+        'positions' : [
+            {'col': 2, 'row': 2},
+            {'col': 4, 'row': 4}
     ]
-    this.positions = [
-        {'col': 2, 'row': 2},
-        {'col': 4, 'row': 4}
-    ]
+    };
+    this.tree = {
+        'image' : 'images/Tree Ugly.png',
+        'positions' : [
+            {'col': 3, 'row': 3},
+            {'col': 5, 'row': 5}
+        ]
+    }
+    // if (info.level === 1) {
+    //     this.sprite = 'images/Rock.png';
+    //     this.positions = [
+    //         {'col': 2, 'row': 2},
+    //         {'col': 4, 'row': 4}
+    //     ]
+    // } else {
+    //     this.sprite = 'Tree Ugly.png';
+    //     this.positions = [
+    //         {'col': 3, 'row': 3},
+    //         {'col': 5, 'row': 5}
+    //     ]
+    // }
 };
 
 Barrier.prototype.render = function () {
-    var sprite = this.sprite;
-    this.positions.forEach(function (pos) {
+    var sprite,
+        positions;
+    if (info.level === 1) {
+        sprite = this.rock.image;
+        positions = this.rock.positions
+    } else {
+        sprite = this.tree.image;
+        positions = this.tree.positions
+    }
+    positions.forEach(function (pos) {
         ctx.drawImage(Resources.get(sprite), cCol(pos.col), cRow(pos.row));
     });
 };
@@ -210,10 +243,15 @@ Info.prototype.render = function () {
 // Place all enemy objects in an array called allEnemies
 // Place the player object in a variable called player
 
-var allEnemies = [new Enemy(100,1,2), new Enemy(200,1,3)];
-var player = new Player();
-var barrier = new Barrier();
 var info = new Info();
+var player = new Player();
+
+if (info.level === 1) {
+    var allEnemies = [new Enemy(100,1,2), new Enemy(200,1,3)];
+    var barrier = new Barrier();
+} else {
+
+}
 
 var pause = false;
 var stop = false;

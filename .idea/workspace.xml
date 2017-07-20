@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="d9ac6f86-909a-4e15-9c01-2b810d0c3ab7" name="Default" comment="" />
+    <list default="true" id="d9ac6f86-909a-4e15-9c01-2b810d0c3ab7" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/P5 Classic Arcade Game Clone/project/js/app.js" afterPath="$PROJECT_DIR$/P5 Classic Arcade Game Clone/project/js/app.js" />
+    </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
     <ignored path="$PROJECT_DIR$/temp/" />
     <ignored path="$PROJECT_DIR$/tmp/" />
@@ -25,11 +27,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="app.js" pinned="false" current-in-tab="false">
+      <file leaf-file-name="app.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/P5 Classic Arcade Game Clone/project/js/app.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="212">
-              <caret line="152" column="5" lean-forward="false" selection-start-line="152" selection-start-column="5" selection-end-line="152" selection-end-column="5" />
+            <state relative-caret-position="172">
+              <caret line="163" column="26" lean-forward="false" selection-start-line="163" selection-start-column="26" selection-end-line="163" selection-end-column="26" />
               <folding />
             </state>
           </provider>
@@ -47,11 +49,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="resources.js" pinned="false" current-in-tab="true">
+      <file leaf-file-name="resources.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/P5 Classic Arcade Game Clone/project/js/resources.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="75">
-              <caret line="5" column="3" lean-forward="true" selection-start-line="5" selection-start-column="3" selection-end-line="5" selection-end-column="3" />
+            <state relative-caret-position="480">
+              <caret line="32" column="0" lean-forward="true" selection-start-line="32" selection-start-column="0" selection-end-line="32" selection-end-column="0" />
               <folding>
                 <element signature="n#!!doc" expanded="true" />
               </folding>
@@ -72,12 +74,14 @@
       <find>rec</find>
       <find>cen</find>
       <find>cent</find>
-      <find>die</find>
       <find>theme</find>
       <find>life</find>
       <find>lose</find>
       <find>succeed</find>
       <find>style</find>
+      <find>die</find>
+      <find>positions</find>
+      <find>barrier</find>
       <find>loop</find>
     </findStrings>
   </component>
@@ -324,12 +328,12 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1500202206253</updated>
-      <workItem from="1500202207647" duration="50717000" />
+      <workItem from="1500202207647" duration="53891000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="50717000" />
+    <option name="totallyTimeSpent" value="53891000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="722" y="0" width="718" height="900" extended-state="0" />
@@ -519,11 +523,13 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/P5 Classic Arcade Game Clone/project/js/app.js">
+    <entry file="file://$PROJECT_DIR$/P5 Classic Arcade Game Clone/project/js/resources.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="212">
-          <caret line="152" column="5" lean-forward="false" selection-start-line="152" selection-start-column="5" selection-end-line="152" selection-end-column="5" />
-          <folding />
+        <state relative-caret-position="480">
+          <caret line="32" column="0" lean-forward="true" selection-start-line="32" selection-start-column="0" selection-end-line="32" selection-end-column="0" />
+          <folding>
+            <element signature="n#!!doc" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -537,13 +543,11 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/P5 Classic Arcade Game Clone/project/js/resources.js">
+    <entry file="file://$PROJECT_DIR$/P5 Classic Arcade Game Clone/project/js/app.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="75">
-          <caret line="5" column="3" lean-forward="true" selection-start-line="5" selection-start-column="3" selection-end-line="5" selection-end-column="3" />
-          <folding>
-            <element signature="n#!!doc" expanded="true" />
-          </folding>
+        <state relative-caret-position="172">
+          <caret line="163" column="26" lean-forward="false" selection-start-line="163" selection-start-column="26" selection-end-line="163" selection-end-column="26" />
+          <folding />
         </state>
       </provider>
     </entry>
