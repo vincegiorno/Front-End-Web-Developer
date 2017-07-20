@@ -102,6 +102,7 @@ var Engine = (function(global) {
             enemy.update(dt);
         });
         player.update();
+        key.update()
     }
 
     function checkCollisions() {
@@ -114,6 +115,9 @@ var Engine = (function(global) {
                 info.life -= 1;
                 player.x = cCol(3);
                 player.y = cRow(6);
+                key.x = cCol(1);
+                key.y = cRow(1);
+                key.get = false
             }
         });
     }
@@ -191,6 +195,10 @@ var Engine = (function(global) {
 
         player.render();
 
+        if (info.level === 2) {
+            key.render()
+        }
+
         info.render();
     }
 
@@ -216,7 +224,11 @@ var Engine = (function(global) {
         'images/Heart.png',
         'images/Rock.png',
         'images/block-dirt.png',
-        'images/Tree Ugly.png'
+        'images/Tree Ugly.png',
+        'images/Key.png',
+        'images/chest-closed.png',
+        'images/chest-open.png',
+        'images/char-cat-girl.png'
     ]);
     Resources.onReady(init);
 

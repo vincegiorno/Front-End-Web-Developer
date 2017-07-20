@@ -34,8 +34,6 @@ var Enemy = function(speed, col, row) {
     // The image/sprite for our enemies, this uses
     // a helper we've provided to easily load images
     this.sprite = 'images/enemy-bug.png';
-    this.width = 101/1.5;
-    this.height = 171/3;
     this.speed = speed;
     this.x = cCol(col);
     this.y = cRow(row);
@@ -64,14 +62,15 @@ Enemy.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 };
 
+Enemy.prototype.width = 101/1.5;
+Enemy.prototype.height = 171/3;
+
 // Now write your own player class
 // This class requires an update(), render() and
-// a handleInput() method.
+// a move() method.
 
 var Player = function () {
     this.sprite = 'images/char-boy.png';
-    this.width = 101/1.5;
-    this.height = 171/3;
     this.x = cCol(3);
     this.y = cRow(6);
     this.cross = function (move, x, y, positions) {
@@ -96,63 +95,63 @@ var Player = function () {
         }
         return true
     };
+    this.move = function (op) {
+        if (pause === false && stop === false) {
+            var positions;
+            if (info.level === 1) {
+                positions = barrier.rock.positions
+            } else {
+                positions = barrier.tree.positions
+            }
+            if (op === 'left' && this.x !== 0) {
+                if (this.cross('left', this.x, this.y, positions)) {
+                    this.x -= ctx.canvas.block.width
+                }
+            }
+            else if (op === 'right' && this.x !== 404) {
+                if (this.cross('right', this.x, this.y, positions)) {
+                    this.x += ctx.canvas.block.width
+                }
+            }
+            else if (op === 'up' && Math.floor(this.y) !== -28) {
+                if (this.cross('up', this.x, this.y, positions)) {
+                    this.y -= ctx.canvas.block.height
+                }
+            }
+            else if (op === 'down' && Math.floor(this.y) !== 387) {
+                if (this.cross('down', this.x, this.y, positions)) {
+                    this.y += ctx.canvas.block.height
+                }
+            }
+        }
+    };
+    this.input = function (op) {
+        if (op === 'pause' && pause === false && stop === false) {
+            pause = true;
+            theme.stop()
+        }
+        else if (op === 'pause' && pause === true && stop === false) {
+            pause = false;
+            theme.play()
+        }
+        if (op === 'restart') {
+            stop = false;
+            theme.play();
+            info.life = 3;
+            info.level = 1
+        }
+    }
 };
 
+Player.prototype = Object.create(Enemy.prototype);
+Player.prototype.constructor = Player;
+
 Player.prototype.update = function () {
-    if (Math.floor(this.y) === Math.floor(cRow(1)) && info.level === 1) {
+    if (info.level === 1 && Math.floor(this.y) === Math.floor(cRow(1))) {
         succeed.play();
         info.level += 1;
         this.x = cCol(3);
         this.y = cRow(6);
-    }
-};
-
-Player.prototype.render = function () {
-  ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
-};
-
-Player.prototype.handleInput = function (op) {
-    if (pause === false && stop === false) {
-        var positions;
-        if (info.level === 1) {
-            positions = barrier.rock.positions
-        } else {
-            positions = barrier.tree.positions
-        }
-        if (op === 'left' && this.x !== 0) {
-            if (this.cross('left', this.x, this.y, positions)) {
-                this.x -= ctx.canvas.block.width
-            }
-        }
-        else if (op === 'right' && this.x !== 404) {
-            if (this.cross('right', this.x, this.y, positions)) {
-                this.x += ctx.canvas.block.width
-            }
-        }
-        else if (op === 'up' && Math.floor(this.y) !== -28) {
-            if (this.cross('up', this.x, this.y, positions)) {
-                this.y -= ctx.canvas.block.height
-            }
-        }
-        else if (op === 'down' && Math.floor(this.y) !== 387) {
-            if (this.cross('down', this.x, this.y, positions)) {
-                this.y += ctx.canvas.block.height
-            }
-        }
-    }
-    if (op === 'pause' && pause === false && stop === false) {
-        pause = true;
-        theme.stop()
-    }
-    else if (op === 'pause' && pause === true && stop === false) {
-        pause = false;
-        theme.play()
-    }
-    if (op === 'restart') {
-        stop = false;
-        theme.play();
-        info.life = 3;
-        info.level = 1
     }
 };
 
@@ -198,6 +197,26 @@ Barrier.prototype.render = function () {
     });
 };
 
+var Key = function () {
+    this.sprite = 'images/Key.png';
+    this.x = cCol(1);
+    this.y = cRow(1);
+    this.get = false
+};
+
+Key.prototype = Object.create(Enemy.prototype);
+Key.prototype.constructor = Key;
+
+Key.prototype.update = function () {
+    if (info.level === 2 && Math.floor(player.y) === Math.floor(cRow(1)) && player.x === cCol(1)) {
+        key.get = true
+    }
+    if (key.get === true) {
+        key.x = player.x + 30;
+        key.y = player.y + 50
+    }
+};
+
 var Info = function () {
     this.level = 1;
     this.sprite = 'images/Heart.png';
@@ -228,7 +247,7 @@ Info.prototype.render = function () {
     ctx.textAlign = 'start';
     ctx.font = '18pt sans-serif';
     ctx.fillStyle = 'yellow';
-    ctx.fillText('Lvl: ' + this.level, 20, 100);
+    ctx.fillText('Lvl: ' + this.level, 420, 100);
 
     ctx.font = '15pt sans-serif';
     ctx.fillStyle = 'black';
@@ -247,13 +266,14 @@ Info.prototype.render = function () {
 var allEnemies = [new Enemy(100,1,2), new Enemy(200,1,3)];
 var player = new Player();
 var barrier = new Barrier();
+var key = new Key();
 var info = new Info();
 
 var pause = false;
 var stop = false;
 
 // This listens for key presses and sends the keys to your
-// Player.handleInput() method. You don't need to modify this.
+// Player.move() method. You don't need to modify this.
 document.addEventListener('keyup', function(e) {
     var allowedKeys = {
         37: 'left',
@@ -265,5 +285,6 @@ document.addEventListener('keyup', function(e) {
         32: 'pause'
     };
 
-    player.handleInput(allowedKeys[e.keyCode]);
+    player.move(allowedKeys[e.keyCode]);
+    player.input(allowedKeys[e.keyCode])
 });
