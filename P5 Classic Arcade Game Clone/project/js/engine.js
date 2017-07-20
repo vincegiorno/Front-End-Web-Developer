@@ -133,6 +133,7 @@ var Engine = (function(global) {
         /* This array holds the relative URL to the image used
          * for that particular row of the game level.
          */
+        // Background
         ctx.fillStyle = 'white';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -199,7 +200,7 @@ var Engine = (function(global) {
 
         player.render();
 
-        if (info.level === 2 && treasure.open == false) {
+        if (info.level === 2 && !treasure.open) {
             key.render();
         }
         info.render();
