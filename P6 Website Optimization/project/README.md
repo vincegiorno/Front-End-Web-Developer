@@ -53,3 +53,21 @@ The portfolio was built on Twitter's <a href="http://getbootstrap.com/">Bootstra
 
 * <a href="http://getbootstrap.com/css/">Bootstrap's CSS Classes</a>
 * <a href="http://getbootstrap.com/components/">Bootstrap's Components</a>
+
+### Solution
+
+#### index.html
+
+* comment out web fonts
+* inline `style.css` and `print.css`
+* async `analytics.js`
+* optimize `pizzeria.jpg`
+
+#### main.js
+
+* correct forced synchronous layout,
+simplify `newwidth` and use `getElementsByClassName()` instead of `querySelectorAll()` in function `changePizzaSizes`
+* move `var pizzasDiv = document.getElementById("randomPizzas");` out of a loop
+* correct forced synchronous layout in function `updatePositions`
+* create 24 `mover` instead of 200
+
