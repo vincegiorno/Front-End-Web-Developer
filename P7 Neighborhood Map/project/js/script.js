@@ -20,8 +20,9 @@ function loadData() {
 
     $greeting.text('So, you want to live at ' + address + '?');
 
+    // 1600 pennsylvania ave, washington dc
     var streetviewUrl = 'http://maps.googleapis.com/maps/api/' +
-        'streetview?size=600x300&location=' + address + '';
+        'streetview?size=600x400&location=' + address;
     $body.append('<img class="bgimg" src="' + streetviewUrl + '">');
 
 
@@ -47,13 +48,32 @@ function loadData() {
     });
 
 
-    var wikiUrl = 'http:'
+    // Wikipeida AJAX request goes here
+    var wikiUrl = 'https://en.wikipedia.org/w/api.' +
+        'php?action=opensearch&search=' + cityStr +
+        '&format=json&callback=wikiCallback';
+
+    var wikiRequestTimeout = setTimeout(function () {
+        $wikiElem.text('failed to get wikipedia resources');
+    }, 8000);
 
     $.ajax({
-        url: 'https://en.wikipedia.org/w/api.php?action=query&titles=beijing&prop=revisions&rvprop=content&format=json',
+        url: wikiUrl,
         dataType: 'jsonp',
-        success: function(data) {
-            console.log(data);
+        // jsonp: 'callback',
+        success: function(response) {
+            var articleList = response[1];
+
+            var articleStr,
+                url;
+            for (var i = 0; i < articleList.length; i++) {
+                articleStr = articleList[i];
+                url = 'http://en.wikipedia.org/wiki/' + articleStr;
+                $wikiElem.append('<li><a href="' + url + '">' +
+                    articleStr + '</a></li>');
+            };
+
+            clearTimeout(wikiRequestTimeout);
         }
     });
 
