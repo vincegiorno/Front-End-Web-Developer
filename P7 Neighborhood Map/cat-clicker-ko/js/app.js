@@ -37,11 +37,11 @@ var initialCats = [
 ];
 
 var Cat = function (data) {
-    this.clickCount = data.clickCount;
-    this.name = data.name;
-    this.imgSrc = data.imgSrc;
-    this.imgAttribution = data.imgAttribution;
-    this.nicknames = data.nicknames;
+    this.clickCount = ko.observable(data.clickCount);
+    this.name = ko.observable(data.name);
+    this.imgSrc = ko.observable(data.imgSrc);
+    this.imgAttribution = ko.observable(data.imgAttribution);
+    this.nicknames = ko.observable(data.nicknames);
 
     this.title = ko.computed(function () {
         var title;
