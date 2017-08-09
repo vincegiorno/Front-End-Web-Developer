@@ -37,8 +37,6 @@ function initAutocomplete() {
         zoomToArea();
     });
 
-    var infowindow;
-    var markers = [];
     // Listen for the event fired when the user selects a prediction and retrieve
     // more details for that place.
     searchBox.addListener('places_changed', function() {
@@ -69,7 +67,28 @@ function initAutocomplete() {
                         var place = results[i];
                         var placeLoc = place.geometry.location;
 
+                        // console.log(place.name, placeLoc.lat(), placeLoc.lng());
+
+                        // var restaurantAPI = `https://developers.zomato.com/api/v2.1/search?q=${place.name}&lat=${placeLoc.lat()}&lon=${placeLoc.lng()}&apikey=8e563edbe434185a64f3948dad0864a8`;
+                        //
+                        // $.getJSON(restaurantAPI, function (data) {
+                        //     restaurant = data.restaurants[0].restaurant;
+                        //     url = restaurant.url;
+                        //     aggregateRating = restaurant.user_rating.aggregate_rating;
+                        //     ratingText = restaurant.user_rating.rating_text;
+                        //     ratingColor = restaurant.user_rating.rating_color;
+                        //     votes = restaurant.user_rating.votes;
+                        //     currency = restaurant.currency;
+                        //     averageCostForTwo = restaurant.average_cost_for_two;
+                        //     cuisines = restaurant.cuisines;
+                        //     thumb = restaurant.thumb;
+                        //     // console.log(url);
+                        // });
+                        //
+                        // console.log(url);
+
                         var marker = new google.maps.Marker({
+                            name: place.name,
                             map: map,
                             position: placeLoc,
                             animation: null
@@ -79,7 +98,12 @@ function initAutocomplete() {
 
                         google.maps.event.addListener(marker, 'click', (function(markerCopy, place) {
                             return function () {
-                                infowindow.setContent(place.name);
+                                
+                                // Set the marker property on this infowindow so it isn't created again.
+                                infowindow.marker = markerCopy;
+                                var innerHTML = '<div><strong>' + markerCopy.name + '</strong>';
+                                innerHTML += '</div>';
+                                infowindow.setContent(innerHTML);
                                 infowindow.open(map, this);
                                 if (markerCopy.getAnimation() !== null) {
                                     markerCopy.setAnimation(null);
@@ -87,6 +111,7 @@ function initAutocomplete() {
                                     markerCopy.setAnimation(google.maps.Animation.BOUNCE);
                                     setTimeout(function(){ markerCopy.setAnimation(null); }, 750);
                                 }
+
                             };
                         })(marker, place));
                         map.fitBounds(bounds);
