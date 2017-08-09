@@ -1,3 +1,7 @@
+// This example requires the Places library. Include the libraries=places
+// parameter when you first load the API. For example:
+// <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places">
+
 var map;
 var infowindow;
 var markers = [];
@@ -23,6 +27,9 @@ function initMap() {
             for (var i = 0; i < results.length; i++) {
                 var place = results[i];
                 var placeLoc = place.geometry.location;
+
+                console.log(placeLoc.lat(), placeLoc.lng());
+
                 var marker = new google.maps.Marker({
                     map: map,
                     position: placeLoc,
@@ -46,5 +53,11 @@ function initMap() {
             map.fitBounds(bounds);
             }
         }
+    });
+
+    var url = 'https://developers.zomato.com/api/v2.1/search?entity_id=16774318&apikey=8e563edbe434185a64f3948dad0864a8';
+
+    $.getJSON(url, function (data) {
+        console.log(data);
     });
 }
