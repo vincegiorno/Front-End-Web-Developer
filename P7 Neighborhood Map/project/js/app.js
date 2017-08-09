@@ -24,9 +24,17 @@ function initAutocomplete() {
     var searchBox = new google.maps.places.SearchBox(input);
     map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
 
+    // This autocomplete is for use in the geocoder entry box.
+    var zoomAutocomplete = new google.maps.places.Autocomplete(
+        document.getElementById('zoom-to-area-text'));
+
     // Bias the SearchBox results towards current map's viewport.
     map.addListener('bounds_changed', function() {
         searchBox.setBounds(map.getBounds());
+    });
+
+    document.getElementById('zoom-to-area').addEventListener('click', function() {
+        zoomToArea();
     });
 
     var infowindow;
@@ -87,4 +95,33 @@ function initAutocomplete() {
             });
         });
     });
+}
+
+// This function takes the input value in the find nearby area text input
+// locates it, and then zooms into that area. This is so that the user can
+// show all listings, then decide to focus on one area of the map.
+function zoomToArea() {
+    // Initialize the geocoder.
+    "use strict";
+    var geocoder = new google.maps.Geocoder();
+    // Get the address or place that the user entered.
+    var address = document.getElementById('zoom-to-area-text').value;
+    // Make sure the address isn't blank.
+    if (address === '') {
+        window.alert('You must enter an area, or address.');
+    } else {
+        // Geocode the address/area entered to get the center. Then, center the map
+        // on it and zoom in
+        geocoder.geocode(
+            { address: address
+            }, function(results, status) {
+                if (status == google.maps.GeocoderStatus.OK) {
+                    map.setCenter(results[0].geometry.location);
+                    map.setZoom(13);
+                } else {
+                    window.alert('We could not find that location - try entering a more' +
+                        ' specific place.');
+                }
+            });
+    }
 }
