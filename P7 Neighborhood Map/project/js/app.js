@@ -65,7 +65,6 @@ function initAutocomplete() {
                 if (status === google.maps.places.PlacesServiceStatus.OK) {
                     for (var i = 0; i < results.length; i++) {
                         var place = results[i];
-                        var placeLoc = place.geometry.location;
 
                         // console.log(place.name, placeLoc.lat(), placeLoc.lng());
 
@@ -90,32 +89,17 @@ function initAutocomplete() {
                         var marker = new google.maps.Marker({
                             name: place.name,
                             map: map,
-                            position: placeLoc,
+                            position: place.geometry.location,
                             animation: null
                         });
                         markers.push(marker);
                         bounds.extend(marker.position);
 
-                        google.maps.event.addListener(marker, 'click', (function(markerCopy, place) {
-                            return function () {
-                                
-                                // Set the marker property on this infowindow so it isn't created again.
-                                infowindow.marker = markerCopy;
-                                var innerHTML = '<div><strong>' + markerCopy.name + '</strong>';
-                                innerHTML += '</div>';
-                                infowindow.setContent(innerHTML);
-                                infowindow.open(map, this);
-                                if (markerCopy.getAnimation() !== null) {
-                                    markerCopy.setAnimation(null);
-                                } else {
-                                    markerCopy.setAnimation(google.maps.Animation.BOUNCE);
-                                    setTimeout(function(){ markerCopy.setAnimation(null); }, 750);
-                                }
-
-                            };
-                        })(marker, place));
-                        map.fitBounds(bounds);
+                        marker.addListener('click', function() {
+                            getPlacesDetails(this, infowindow);
+                        });
                     }
+                    map.fitBounds(bounds);
                 }
             });
         });
@@ -126,8 +110,8 @@ function initAutocomplete() {
 // locates it, and then zooms into that area. This is so that the user can
 // show all listings, then decide to focus on one area of the map.
 function zoomToArea() {
-    // Initialize the geocoder.
     "use strict";
+    // Initialize the geocoder.
     var geocoder = new google.maps.Geocoder();
     // Get the address or place that the user entered.
     var address = document.getElementById('zoom-to-area-text').value;
@@ -148,5 +132,21 @@ function zoomToArea() {
                         ' specific place.');
                 }
             });
+    }
+}
+
+function getPlacesDetails(marker, infowindow) {
+    "use strict";
+    // Set the marker property on this infowindow so it isn't created again.
+    infowindow.marker = marker;
+    var innerHTML = '<div><strong>' + marker.name + '</strong>';
+    innerHTML += '</div>';
+    infowindow.setContent(innerHTML);
+    infowindow.open(map, marker);
+    if (marker.getAnimation() !== null) {
+        marker.setAnimation(null);
+    } else {
+        marker.setAnimation(google.maps.Animation.BOUNCE);
+        setTimeout(function(){ marker.setAnimation(null); }, 750);
     }
 }
