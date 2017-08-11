@@ -65,27 +65,6 @@ function initAutocomplete() {
                 if (status === google.maps.places.PlacesServiceStatus.OK) {
                     for (var i = 0; i < results.length; i++) {
                         var place = results[i];
-
-                        // console.log(place.name, placeLoc.lat(), placeLoc.lng());
-
-                        // var restaurantAPI = `https://developers.zomato.com/api/v2.1/search?q=${place.name}&lat=${placeLoc.lat()}&lon=${placeLoc.lng()}&apikey=8e563edbe434185a64f3948dad0864a8`;
-                        //
-                        // $.getJSON(restaurantAPI, function (data) {
-                        //     restaurant = data.restaurants[0].restaurant;
-                        //     url = restaurant.url;
-                        //     aggregateRating = restaurant.user_rating.aggregate_rating;
-                        //     ratingText = restaurant.user_rating.rating_text;
-                        //     ratingColor = restaurant.user_rating.rating_color;
-                        //     votes = restaurant.user_rating.votes;
-                        //     currency = restaurant.currency;
-                        //     averageCostForTwo = restaurant.average_cost_for_two;
-                        //     cuisines = restaurant.cuisines;
-                        //     thumb = restaurant.thumb;
-                        //     // console.log(url);
-                        // });
-                        //
-                        // console.log(url);
-
                         var marker = new google.maps.Marker({
                             name: place.name,
                             map: map,
@@ -137,11 +116,51 @@ function zoomToArea() {
 
 function getPlacesDetails(marker, infowindow) {
     "use strict";
-    // Set the marker property on this infowindow so it isn't created again.
-    infowindow.marker = marker;
-    var innerHTML = '<div><strong>' + marker.name + '</strong>';
-    innerHTML += '</div>';
-    infowindow.setContent(innerHTML);
+    var restaurantAPI = `https://developers.zomato.com/api/v2.1/search?q=${marker.name}&lat=${marker.position.lat()}&lon=${marker.position.lng()}&apikey=8e563edbe434185a64f3948dad0864a8`;
+    $.getJSON(restaurantAPI, function (data) {
+        if (data.results_shown === 0) {
+            // Set the marker property on this infowindow so it isn't created again.
+            infowindow.marker = marker;
+            infowindow.setContent(marker.name);
+        } else {
+            var restaurant = data.restaurants[0].restaurant;
+            infowindow.marker = marker;
+            var innerHTML = '<div>';
+            if (restaurant.name && restaurant.url) {
+                innerHTML += `<a href="${restaurant.url}">${restaurant.name}</a>`;
+            } else if (restaurant.name) {
+                innerHTML += `${restaurant.name}`
+            }
+            if (restaurant.user_rating.aggregate_rating) {
+                innerHTML += `<br>${restaurant.user_rating.aggregate_rating}/5`;
+            }
+            if (restaurant.user_rating.votes) {
+                innerHTML += `  (${restaurant.user_rating.votes} votes)`;
+            }
+            if (restaurant.average_cost_for_two && restaurant.currency) {
+                innerHTML += `<br>${restaurant.currency}${restaurant.average_cost_for_two} for two people`;
+            } else if (restaurant.average_cost_for_two) {
+                innerHTML += `<br>${restaurant.average_cost_for_two} for two people`
+            }
+            if (restaurant.cuisines) {
+                innerHTML += `<br>${restaurant.cuisines}`;
+            }
+            if (restaurant.thumb) {
+                innerHTML += `<br><img src="${restaurant.thumb}" alt="thumb" style="width:250px">`;
+            }
+            innerHTML += '</div>';
+            infowindow.setContent(innerHTML);
+        }
+        animation(infowindow, marker);
+    }).error(function (e) {
+        infowindow.marker = marker;
+        infowindow.setContent(marker.name);
+        animation(infowindow, marker);
+    });
+}
+
+function animation(infowindow, marker) {
+    "use strict";
     infowindow.open(map, marker);
     if (marker.getAnimation() !== null) {
         marker.setAnimation(null);
