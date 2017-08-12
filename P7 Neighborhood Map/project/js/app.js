@@ -50,7 +50,6 @@ function initAutocomplete() {
         markers.forEach(function(marker) {
             marker.setMap(null);
         });
-        markers = [];
 
         // For each place, get the icon, name and location.
         infowindow = new google.maps.InfoWindow();
@@ -78,6 +77,9 @@ function initAutocomplete() {
                             getPlacesDetails(this, infowindow);
                         });
                     }
+
+                    ko.applyBindings(new ViewModel(markers));
+                    // console.log(markers[0].name);
                     map.fitBounds(bounds);
                 }
             });
@@ -168,4 +170,19 @@ function animation(infowindow, marker) {
         marker.setAnimation(google.maps.Animation.BOUNCE);
         setTimeout(function(){ marker.setAnimation(null); }, 750);
     }
+}
+
+function Restaurant(name) {
+    "use strict";
+    this.name = ko.observable(name);
+}
+
+function ViewModel(markers) {
+    "use strict";
+    var self = this;
+
+    this.restaurantList = ko.observableArray([]);
+    markers.forEach(function (marker) {
+        self.restaurantList.push(new Restaurant(marker.name));
+    });
 }

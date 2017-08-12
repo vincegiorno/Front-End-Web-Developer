@@ -13,6 +13,9 @@
                     <input id="zoom-to-area-text" type="text" placeholder="Enter your city!">
                     <input id="zoom-to-area" type="button" value="Go">
                 </div>
+                <div data-bind="foreach: restaurantList">
+                    <p data-bind="text: name"></p>
+                </div>
             </div>
         </div>
         <input id="pac-input" class="controls" type="text" placeholder="Enter a place, and find restaurants within 10 minutes' walk!">
