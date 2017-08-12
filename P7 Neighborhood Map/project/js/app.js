@@ -8,7 +8,6 @@
 
 var map;
 var infowindow;
-var markers = [];
 
 function initAutocomplete() {
     "use strict";
@@ -46,11 +45,6 @@ function initAutocomplete() {
             return;
         }
 
-        // Clear out the old markers.
-        markers.forEach(function(marker) {
-            marker.setMap(null);
-        });
-
         // For each place, get the icon, name and location.
         infowindow = new google.maps.InfoWindow();
         var bounds = new google.maps.LatLngBounds();
@@ -70,16 +64,10 @@ function initAutocomplete() {
                             position: place.geometry.location,
                             animation: null
                         });
-                        markers.push(marker);
                         bounds.extend(marker.position);
 
-                        marker.addListener('click', function() {
-                            getPlacesDetails(this, infowindow);
-                        });
+                        apiRequest(marker);
                     }
-
-                    ko.applyBindings(new ViewModel(markers, infowindow));
-
                     map.fitBounds(bounds);
                 }
             });
@@ -116,7 +104,7 @@ function zoomToArea() {
     }
 }
 
-function getPlacesDetails(marker, infowindow) {
+function apiRequest(marker) {
     "use strict";
     var restaurantAPI = `https://developers.zomato.com/api/v2.1/search?q=${marker.name}&lat=${marker.position.lat()}&lon=${marker.position.lng()}&apikey=8e563edbe434185a64f3948dad0864a8`;
     $.getJSON(restaurantAPI, function (data) {
@@ -124,44 +112,68 @@ function getPlacesDetails(marker, infowindow) {
             // Set the marker property on this infowindow so it isn't created again.
             infowindow.marker = marker;
             infowindow.setContent(marker.name);
+
+            VM.addMarker(marker);
+
+            marker.addListener('click', function() {
+                animation(this, infowindow);
+            });
         } else {
             var restaurant = data.restaurants[0].restaurant;
-            infowindow.marker = marker;
-            var innerHTML = '<div>';
-            if (restaurant.url) {
-                innerHTML += `<a href="${restaurant.url}">${marker.name}</a>`;
-            } else {
-                innerHTML += `${marker.name}`
-            }
-            if (restaurant.user_rating.aggregate_rating) {
-                innerHTML += `<br>${restaurant.user_rating.aggregate_rating}/5`;
-            }
-            if (restaurant.user_rating.votes) {
-                innerHTML += `  (${restaurant.user_rating.votes} votes)`;
-            }
-            if (restaurant.average_cost_for_two && restaurant.currency) {
-                innerHTML += `<br>${restaurant.currency}${restaurant.average_cost_for_two} for two people`;
-            } else if (restaurant.average_cost_for_two) {
-                innerHTML += `<br>${restaurant.average_cost_for_two} for two people`
-            }
-            if (restaurant.cuisines) {
-                innerHTML += `<br>${restaurant.cuisines}`;
-            }
-            if (restaurant.thumb) {
-                innerHTML += `<br><img src="${restaurant.thumb}" alt="thumb" style="width:250px">`;
-            }
-            innerHTML += '</div>';
-            infowindow.setContent(innerHTML);
+            marker.url = restaurant.url;
+            marker.rating = restaurant.user_rating.aggregate_rating;
+            marker.votes = restaurant.user_rating.votes;
+            marker.cost = restaurant.average_cost_for_two;
+            marker.currency = restaurant.currency;
+            marker.cuisines = restaurant.cuisines;
+            marker.thumb = restaurant.thumb;
+
+            VM.addMarker(marker);
+
+            marker.addListener('click', function() {
+                getPlacesDetails(this, infowindow);
+            });
         }
-        animation(infowindow, marker);
     }).error(function (e) {
         infowindow.marker = marker;
         infowindow.setContent(marker.name);
         animation(infowindow, marker);
     });
+
 }
 
-function animation(infowindow, marker) {
+function getPlacesDetails(marker, infowindow) {
+    "use strict";
+    infowindow.marker = marker;
+    var innerHTML = '<div>';
+    if (marker.url !== '') {
+        innerHTML += `<a href="${marker.url}">${marker.name}</a>`;
+    } else {
+        innerHTML += `${marker.name}`
+    }
+    if (marker.rating !== '') {
+        innerHTML += `<br>${marker.rating}/5`;
+    }
+    if (marker.votes !== '') {
+        innerHTML += `  (${marker.votes} votes)`;
+    }
+    if (marker.cost !== '' && marker.currency !== '') {
+        innerHTML += `<br>${marker.currency}${marker.cost} for two people`;
+    } else if (marker.cost !== '') {
+        innerHTML += `<br>${marker.cost} for two people`
+    }
+    if (marker.cuisines !== '') {
+        innerHTML += `<br>${marker.cuisines}`;
+    }
+    if (marker.thumb !== '') {
+        innerHTML += `<br><img src="${marker.thumb}" alt="thumb" style="width:250px">`;
+    }
+    innerHTML += '</div>';
+    infowindow.setContent(innerHTML);
+    animation(marker, infowindow);
+}
+
+function animation(marker, infowindow) {
     "use strict";
     infowindow.open(map, marker);
     if (marker.getAnimation() !== null) {
@@ -172,20 +184,24 @@ function animation(infowindow, marker) {
     }
 }
 
-function Restaurant(marker, infowindow) {
-    "use strict";
-    this.name = ko.observable(marker.name);
-    this.marker = function () {
-        getPlacesDetails(marker, infowindow);
-    };
-}
-
-function ViewModel(markers, infowindow) {
+var ViewModel = function () {
     "use strict";
     var self = this;
 
     this.restaurantList = ko.observableArray([]);
-    markers.forEach(function (marker) {
-        self.restaurantList.push(new Restaurant(marker, infowindow));
-    });
-}
+    this.addMarker = function (marker) {
+        self.restaurantList.push(new Restaurant(marker));
+    };
+};
+
+var Restaurant = function (marker) {
+    "use strict";
+    this.name = ko.observable(marker.name);
+    this.marker = function () {
+        getPlacesDetails(marker);
+    };
+};
+
+var VM = new ViewModel();
+
+ko.applyBindings(VM);
