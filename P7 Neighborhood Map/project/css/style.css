@@ -26,3 +26,7 @@ body {
     text-overflow: ellipsis;
     width: 400px;
 }
+
+button {
+    width: 100%;
+}
