@@ -126,10 +126,10 @@ function getPlacesDetails(marker, infowindow) {
             var restaurant = data.restaurants[0].restaurant;
             infowindow.marker = marker;
             var innerHTML = '<div>';
-            if (restaurant.name && restaurant.url) {
-                innerHTML += `<a href="${restaurant.url}">${restaurant.name}</a>`;
-            } else if (restaurant.name) {
-                innerHTML += `${restaurant.name}`
+            if (restaurant.url) {
+                innerHTML += `<a href="${restaurant.url}">${marker.name}</a>`;
+            } else {
+                innerHTML += `${marker.name}`
             }
             if (restaurant.user_rating.aggregate_rating) {
                 innerHTML += `<br>${restaurant.user_rating.aggregate_rating}/5`;
