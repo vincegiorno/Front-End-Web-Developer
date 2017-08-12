@@ -78,8 +78,8 @@ function initAutocomplete() {
                         });
                     }
 
-                    ko.applyBindings(new ViewModel(markers));
-                    // console.log(markers[0].name);
+                    ko.applyBindings(new ViewModel(markers, infowindow));
+
                     map.fitBounds(bounds);
                 }
             });
@@ -172,17 +172,20 @@ function animation(infowindow, marker) {
     }
 }
 
-function Restaurant(name) {
+function Restaurant(marker, infowindow) {
     "use strict";
-    this.name = ko.observable(name);
+    this.name = ko.observable(marker.name);
+    this.marker = function () {
+        getPlacesDetails(marker, infowindow);
+    };
 }
 
-function ViewModel(markers) {
+function ViewModel(markers, infowindow) {
     "use strict";
     var self = this;
 
     this.restaurantList = ko.observableArray([]);
     markers.forEach(function (marker) {
-        self.restaurantList.push(new Restaurant(marker.name));
+        self.restaurantList.push(new Restaurant(marker, infowindow));
     });
 }
