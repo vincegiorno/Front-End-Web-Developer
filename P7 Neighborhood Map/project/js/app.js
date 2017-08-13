@@ -8,6 +8,8 @@
 
 var map;
 var infowindow;
+var markers = [];
+
 
 function initAutocomplete() {
     "use strict";
@@ -45,6 +47,14 @@ function initAutocomplete() {
             return;
         }
 
+        // Clear out the old markers.
+        markers.forEach(function(marker) {
+            marker.setMap(null);
+        });
+        markers = [];
+        VM.restaurantList([]);
+        // VM.cuisinesList([]);
+
         // For each place, get the icon, name and location.
         infowindow = new google.maps.InfoWindow();
         var bounds = new google.maps.LatLngBounds();
@@ -64,6 +74,7 @@ function initAutocomplete() {
                             position: place.geometry.location,
                             animation: null
                         });
+                        markers.push(marker);
                         bounds.extend(marker.position);
 
                         apiRequest(marker);
@@ -106,19 +117,12 @@ function zoomToArea() {
 
 function apiRequest(marker) {
     "use strict";
-    var restaurantAPI = `https://developers.zomato.com/api/v2.1/search?q=${marker.name}&lat=${marker.position.lat()}&lon=${marker.position.lng()}&apikey=8e563edbe434185a64f3948dad0864a8`;
+    var restaurantAPI = `https://developers.zomato.com/api/v2.1/search?q=${marker.name}&lat=${marker.position.lat()}&lon=${marker.position.lng()}&apikey=fdab76b655596f02ba656c39adca693e`;
     $.getJSON(restaurantAPI, function (data) {
         if (data.results_shown === 0) {
-            // Set the marker property on this infowindow so it isn't created again.
-            infowindow.marker = marker;
-            infowindow.setContent(marker.name);
-
-            VM.addMarker(marker);
-
-            marker.addListener('click', function() {
-                animation(this, infowindow);
-            });
+            marker.api = false;
         } else {
+            marker.api = true;
             var restaurant = data.restaurants[0].restaurant;
             marker.url = restaurant.url;
             marker.rating = restaurant.user_rating.aggregate_rating;
@@ -127,49 +131,56 @@ function apiRequest(marker) {
             marker.currency = restaurant.currency;
             marker.cuisines = restaurant.cuisines;
             marker.thumb = restaurant.thumb;
-
-            VM.addMarker(marker);
-
-            marker.addListener('click', function() {
-                getPlacesDetails(this, infowindow);
-            });
         }
-    }).error(function (e) {
-        infowindow.marker = marker;
-        infowindow.setContent(marker.name);
-        animation(infowindow, marker);
-    });
+        marker.addListener('click', function() {
+            getPlacesDetails(this, infowindow);
+        });
 
+        VM.addMarker(marker, infowindow);
+    }).error(function (e) {
+        marker.api = false;
+
+        marker.addListener('click', function() {
+            getPlacesDetails(this, infowindow);
+        });
+
+        VM.addMarker(marker, infowindow);
+    });
 }
 
 function getPlacesDetails(marker, infowindow) {
     "use strict";
+    // Set the marker property on this infowindow so it isn't created again.
     infowindow.marker = marker;
-    var innerHTML = '<div>';
-    if (marker.url !== '') {
-        innerHTML += `<a href="${marker.url}">${marker.name}</a>`;
+    if (marker.api === true) {
+        var innerHTML = '<div>';
+        if (marker.url !== '') {
+            innerHTML += `<a href="${marker.url}">${marker.name}</a>`;
+        } else {
+            innerHTML += `${marker.name}`
+        }
+        if (marker.rating !== '') {
+            innerHTML += `<br>${marker.rating}/5`;
+        }
+        if (marker.votes !== '') {
+            innerHTML += `  (${marker.votes} votes)`;
+        }
+        if (marker.cost !== '' && marker.currency !== '') {
+            innerHTML += `<br>${marker.currency}${marker.cost} for two people`;
+        } else if (marker.cost !== '') {
+            innerHTML += `<br>${marker.cost} for two people`
+        }
+        if (marker.cuisines !== '') {
+            innerHTML += `<br>${marker.cuisines}`;
+        }
+        if (marker.thumb !== '') {
+            innerHTML += `<br><img src="${marker.thumb}" alt="thumb" style="width:250px">`;
+        }
+        innerHTML += '</div>';
+        infowindow.setContent(innerHTML);
     } else {
-        innerHTML += `${marker.name}`
+        infowindow.setContent(marker.name);
     }
-    if (marker.rating !== '') {
-        innerHTML += `<br>${marker.rating}/5`;
-    }
-    if (marker.votes !== '') {
-        innerHTML += `  (${marker.votes} votes)`;
-    }
-    if (marker.cost !== '' && marker.currency !== '') {
-        innerHTML += `<br>${marker.currency}${marker.cost} for two people`;
-    } else if (marker.cost !== '') {
-        innerHTML += `<br>${marker.cost} for two people`
-    }
-    if (marker.cuisines !== '') {
-        innerHTML += `<br>${marker.cuisines}`;
-    }
-    if (marker.thumb !== '') {
-        innerHTML += `<br><img src="${marker.thumb}" alt="thumb" style="width:250px">`;
-    }
-    innerHTML += '</div>';
-    infowindow.setContent(innerHTML);
     animation(marker, infowindow);
 }
 
@@ -189,18 +200,58 @@ var ViewModel = function () {
     var self = this;
 
     this.restaurantList = ko.observableArray([]);
-    this.addMarker = function (marker) {
-        self.restaurantList.push(new Restaurant(marker));
+    this.cuisinesList = ko.observableArray([]);
+
+    this.cuisinesUnique = [];
+
+    this.addMarker = function (marker, infowindow) {
+        self.restaurantList.push(new Restaurant(marker, infowindow));
+
+        if (marker.api === true && marker.cuisines !== '') {
+            var cuisines = marker.cuisines;
+            var cuisinesSplit = cuisines.split(', ');
+            cuisinesSplit.forEach(function (cuisine) {
+                var type = new Cuisines(cuisine);
+                if (self.cuisinesUnique.indexOf(type.name) === -1) {
+                    self.cuisinesUnique.push(type.name);
+                    self.cuisinesList.push(type);
+                }
+            });
+        }
     };
 };
 
-var Restaurant = function (marker) {
+var Restaurant = function (marker, infowindow) {
     "use strict";
-    this.name = ko.observable(marker.name);
-    this.marker = function () {
-        getPlacesDetails(marker);
+    this.marker = marker;
+    this.visibility = ko.observable(true);
+    this.detail = function () {
+        getPlacesDetails(marker, infowindow);
     };
 };
+
+var Cuisines = function (cuisine) {
+    "use strict";
+    var self = this;
+
+    this.name = cuisine;
+    this.filter = function () {
+        filter(self.name);
+    };
+};
+
+function filter(name) {
+    ko.utils.arrayForEach(VM.restaurantList(), function (restaurant) {
+        restaurant.marker.setMap(map);
+        restaurant.visibility(true);
+        var cuisines = restaurant.marker.cuisines;
+        var cuisinesSplit = cuisines.split(', ');
+        if (cuisinesSplit.indexOf(name) === -1) {
+            restaurant.marker.setMap(null);
+            restaurant.visibility(false);
+        }
+    });
+}
 
 var VM = new ViewModel();
 
