@@ -163,7 +163,7 @@ function getPlacesDetails(marker, infowindow) {
         if (marker.url !== '') {
             innerHTML += `<a href="${marker.url}">${marker.name}</a>`;
         } else {
-            innerHTML += `${marker.name}`
+            innerHTML += `${marker.name}`;
         }
         if (marker.rating !== '') {
             innerHTML += `<br>${marker.rating}/5`;
@@ -174,7 +174,7 @@ function getPlacesDetails(marker, infowindow) {
         if (marker.cost !== '' && marker.currency !== '') {
             innerHTML += `<br>${marker.currency}${marker.cost} for two people`;
         } else if (marker.cost !== '') {
-            innerHTML += `<br>${marker.cost} for two people`
+            innerHTML += `<br>${marker.cost} for two people`;
         }
         if (marker.cuisines !== '') {
             innerHTML += `<br>${marker.cuisines}`;
