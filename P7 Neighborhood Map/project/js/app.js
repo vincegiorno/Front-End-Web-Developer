@@ -6,18 +6,23 @@
 // parameter when you first load the API. For example:
 // <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places">
 
+"use strict";
+
 var map;
 var infowindow;
 var markers = [];
 
 function initAutocomplete() {
-    "use strict";
     var newYork = {lat: 40.7413549, lng: -73.9980244};
 
     // New York as initial viewport
     map = new google.maps.Map(document.getElementById('map'), {
         center: newYork,
-        zoom: 13
+        zoom: 13,
+        mapTypeControlOptions: {
+            // style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
+            position: google.maps.ControlPosition.LEFT_BOTTOM
+        }
     });
 
     // This autocomplete is for use in the geocoder entry box.
@@ -29,7 +34,9 @@ function initAutocomplete() {
 
     // Create the search box and link it to the UI element.
     var input = document.getElementById('pac-input');
+    var menu = document.getElementById('menu');
     var searchBox = new google.maps.places.SearchBox(input);
+    map.controls[google.maps.ControlPosition.TOP_LEFT].push(menu);
     map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
 
     // Bias the SearchBox results towards current map's viewport.
@@ -90,8 +97,6 @@ function initAutocomplete() {
 
 // Go to selected city when 'Go' is clicked
 function zoomToArea() {
-    "use strict";
-
     // Initialize the geocoder.
     var geocoder = new google.maps.Geocoder();
 
@@ -120,7 +125,6 @@ function zoomToArea() {
 
 // Request data from zomato API
 function apiRequest(marker) {
-    "use strict";
     var restaurantAPI = `https://developers.zomato.com/api/v2.1/search?q=${marker.name}&lat=${marker.position.lat()}&lon=${marker.position.lng()}&apikey=fdab76b655596f02ba656c39adca693e`;
     $.getJSON(restaurantAPI, function (data) {
         if (data.results_shown === 0) {
@@ -154,7 +158,7 @@ function apiRequest(marker) {
 
 // Populate the DOM
 function getPlacesDetails(marker, infowindow) {
-    "use strict";
+
 
     // Set the marker property on this infowindow so it isn't created again.
     infowindow.marker = marker;
@@ -192,7 +196,6 @@ function getPlacesDetails(marker, infowindow) {
 
 // Open the infowindow and make the marker bounce once
 function animation(marker, infowindow) {
-    "use strict";
     infowindow.open(map, marker);
     if (marker.getAnimation() !== null) {
         marker.setAnimation(null);
@@ -203,7 +206,6 @@ function animation(marker, infowindow) {
 }
 
 var ViewModel = function () {
-    "use strict";
     var self = this;
     this.restaurantList = ko.observableArray([]);
     this.cuisinesList = ko.observableArray([]);
@@ -230,7 +232,6 @@ var ViewModel = function () {
 };
 
 var Restaurant = function (marker, infowindow) {
-    "use strict";
     this.marker = marker;
 
     // Hide filtered restaurant on sidebar if false
@@ -243,7 +244,6 @@ var Restaurant = function (marker, infowindow) {
 };
 
 var Cuisines = function (cuisine) {
-    "use strict";
     var self = this;
     this.name = cuisine;
     this.filter = function () {

@@ -37,12 +37,36 @@
             <!-- /#sidebar-wrapper -->
 
             <!-- Page Content -->
-            <input id="pac-input" class="controls" type="text" placeholder="Enter a place, and find restaurants within 10 minutes' walk!">
-            <div id="map"></div>
+            <main>
+                <a id="menu">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <path d="M2 6h20v3H2zm0 5h20v3H2zm0 5h20v3H2z"></path>
+                    </svg>
+                </a>
+                <input id="pac-input" class="controls" type="text" placeholder="Enter a place, and find restaurants within 10 minutes' walk!">
+                <div id="map"></div>
+            </main>
             <!-- /#page-content-wrapper -->
 
         </div>
         <!-- /#wrapper -->
+
+        <script>
+            /*
+             * Open the drawer when the menu ison is clicked.
+             */
+            var menu = document.querySelector('#menu');
+            var main = document.querySelector('main');
+            var drawer = document.querySelector('#sidebar-wrapper');
+
+            menu.addEventListener('click', function(e) {
+                drawer.classList.toggle('open');
+                e.stopPropagation();
+            });
+            main.addEventListener('click', function() {
+                drawer.classList.remove('open');
+            });
+        </script>
 
         <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCZtdnOs4ZZAkI7D2ApGhX371iCXHqORsM&libraries=places&callback=initAutocomplete" async defer></script>
 
