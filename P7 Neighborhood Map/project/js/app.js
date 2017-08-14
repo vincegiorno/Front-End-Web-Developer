@@ -20,7 +20,6 @@ function initAutocomplete() {
         center: newYork,
         zoom: 13,
         mapTypeControlOptions: {
-            // style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
             position: google.maps.ControlPosition.LEFT_BOTTOM
         }
     });
@@ -68,28 +67,43 @@ function initAutocomplete() {
         // For each place, get the icon, name and location.
         infowindow = new google.maps.InfoWindow();
         var bounds = new google.maps.LatLngBounds();
-        var service = new google.maps.places.PlacesService(map);
         places.forEach(function(place) {
-            service.nearbySearch({
-                location: {lat: place.geometry.location.lat(), lng: place.geometry.location.lng()},
-                radius: 500,
-                uniqueCuisine: ['restaurant']
-            }, function (results, status) {
-                if (status === google.maps.places.PlacesServiceStatus.OK) {
-                    for (var i = 0; i < results.length; i++) {
-                        var place = results[i];
+            var restaurantAPI = `https://developers.zomato.com/api/v2.1/search?count=3&lat=${place.geometry.location.lat()}&lon=${place.geometry.location.lng()}&radius=500&apikey=fdab76b655596f02ba656c39adca693e`;
+            $.getJSON(restaurantAPI, function (data) {
+                if (data.results_shown === 0) {
+                    // No restaurant info
+                    window.alert('Sorry, we cannot find restaurant information around this place.');
+                } else {
+                    data.restaurants.forEach(function (item) {
+                        var restaurant = item.restaurant;
                         var marker = new google.maps.Marker({
-                            name: place.name,
+                            name: restaurant.name,
                             map: map,
-                            position: place.geometry.location,
+                            position: {lat: Number(restaurant.location.latitude), lng: Number(restaurant.location.longitude)},
                             animation: null
                         });
                         markers.push(marker);
                         bounds.extend(marker.position);
-                        apiRequest(marker);
-                    }
+
+                        marker.url = restaurant.url;
+                        marker.rating = restaurant.user_rating.aggregate_rating;
+                        marker.votes = restaurant.user_rating.votes;
+                        marker.cost = restaurant.average_cost_for_two;
+                        marker.currency = restaurant.currency;
+                        marker.cuisines = restaurant.cuisines;
+                        marker.thumb = restaurant.thumb;
+
+                        marker.addListener('click', function() {
+                            getPlacesDetails(this, infowindow);
+                        });
+
+                        // Add marker to restaurantList and cuisinesList for sidebar and dropdown respectively
+                        VM.addMarker(marker, infowindow);
+                    });
                     map.fitBounds(bounds);
                 }
+            }).error(function (e) {
+                window.alert('Sorry, restaurant information cannot be loaded.');
             });
         });
     });
@@ -123,74 +137,35 @@ function zoomToArea() {
     }
 }
 
-// Request data from zomato API
-function apiRequest(marker) {
-    var restaurantAPI = `https://developers.zomato.com/api/v2.1/search?q=${marker.name}&lat=${marker.position.lat()}&lon=${marker.position.lng()}&apikey=fdab76b655596f02ba656c39adca693e`;
-    $.getJSON(restaurantAPI, function (data) {
-        if (data.results_shown === 0) {
-            // No restaurant info
-            marker.api = false;
-        } else {
-            marker.api = true;
-            var restaurant = data.restaurants[0].restaurant;
-            marker.url = restaurant.url;
-            marker.rating = restaurant.user_rating.aggregate_rating;
-            marker.votes = restaurant.user_rating.votes;
-            marker.cost = restaurant.average_cost_for_two;
-            marker.currency = restaurant.currency;
-            marker.cuisines = restaurant.cuisines;
-            marker.thumb = restaurant.thumb;
-        }
-        marker.addListener('click', function() {
-            getPlacesDetails(this, infowindow);
-        });
-
-        // Add marker to restaurantList and cuisinesList for sidebar and dropdown respectively
-        VM.addMarker(marker, infowindow);
-    }).error(function (e) {
-        marker.api = false;
-        marker.addListener('click', function() {
-            getPlacesDetails(this, infowindow);
-        });
-        VM.addMarker(marker, infowindow);
-    });
-}
-
 // Populate the DOM
 function getPlacesDetails(marker, infowindow) {
-
-
     // Set the marker property on this infowindow so it isn't created again.
     infowindow.marker = marker;
-    if (marker.api === true) {
-        var innerHTML = '<div>';
-        if (marker.url !== '') {
-            innerHTML += `<a href="${marker.url}">${marker.name}</a>`;
-        } else {
-            innerHTML += `${marker.name}`;
-        }
-        if (marker.rating !== '') {
-            innerHTML += `<br>${marker.rating}/5`;
-        }
-        if (marker.votes !== '') {
-            innerHTML += `  (${marker.votes} votes)`;
-        }
-        if (marker.cost !== '' && marker.currency !== '') {
-            innerHTML += `<br>${marker.currency}${marker.cost} for two people`;
-        } else if (marker.cost !== '') {
-            innerHTML += `<br>${marker.cost} for two people`;
-        }
-        if (marker.cuisines !== '') {
-            innerHTML += `<br>${marker.cuisines}`;
-        }
-        if (marker.thumb !== '') {
-            innerHTML += `<br><img src="${marker.thumb}" alt="thumb" style="width:250px">`;
-        }
-        innerHTML += '</div>';
-        infowindow.setContent(innerHTML);
+    var innerHTML = '<div>';
+    if (marker.url !== '') {
+        innerHTML += `<a href="${marker.url}">${marker.name}</a>`;
     } else {
-        infowindow.setContent(marker.name);
+        innerHTML += `${marker.name}`;
     }
+    if (marker.rating !== '') {
+        innerHTML += `<br>${marker.rating}/5`;
+    }
+    if (marker.votes !== '') {
+        innerHTML += `  (${marker.votes} votes)`;
+    }
+    if (marker.cost !== '' && marker.currency !== '') {
+        innerHTML += `<br>${marker.currency}${marker.cost} for two people`;
+    } else if (marker.cost !== '') {
+        innerHTML += `<br>${marker.cost} for two people`;
+    }
+    if (marker.cuisines !== '') {
+        innerHTML += `<br>${marker.cuisines}`;
+    }
+    if (marker.thumb !== '') {
+        innerHTML += `<br><img src="${marker.thumb}" alt="thumb" style="width:250px">`;
+    }
+    innerHTML += '</div>';
+    infowindow.setContent(innerHTML);
     animation(marker, infowindow);
 }
 
@@ -217,7 +192,7 @@ var ViewModel = function () {
         self.restaurantList.push(new Restaurant(marker, infowindow));
 
         // Add marker to cuisinesList for dropdown
-        if (marker.api === true && marker.cuisines !== '') {
+        if (marker.cuisines !== '') {
             var cuisines = marker.cuisines;
             var cuisinesSplit = cuisines.split(', ');
             cuisinesSplit.forEach(function (cuisine) {
@@ -271,3 +246,41 @@ function filter(name) {
 var VM = new ViewModel();
 
 ko.applyBindings(VM);
+
+var mapApplication = function (){
+
+    var mapsModel = {
+        fromAddress: ko.observable(),
+        toAddress: ko.observable()
+    };
+    // method to add custom binding handler to the KO
+    var configureBindingHandlers = function(){
+        // custom binding for address auto complete
+        ko.bindingHandlers.addressAutoComplete = {
+            init: function(element, valueAccessor){
+                //create autocomplete object
+                var autocomplete = new google.maps.places.Autocomplete(element, {types:['geocode']});
+                // when user selects an address from the drop down, populate the address in the model.
+                var value = valueAccessor();
+                google.maps.event.addListener(autocomplete, 'place_changed', function(){
+                    var place = autocomplete.getPlace();
+                    console.log(place);
+                    value(place);
+                });
+            }
+        };
+    };
+
+    var init = function(){
+        // add code to initialise the module
+        ko.applyBindings(mapApplication);
+    };
+
+    // execute the init function when the DOM is ready
+    $(init);
+
+    return {
+        // add member that will be exposed publicly
+        mapsModel: mapsModel
+    };
+}();

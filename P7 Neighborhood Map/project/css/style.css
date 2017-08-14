@@ -19,10 +19,6 @@
     width: 500px;
 }
 
-.dropdown-menu {
-    width: 100%;
-}
-
 
 html, body {
     height: 100%;
@@ -30,7 +26,7 @@ html, body {
 }
 a#menu svg {
     width: 40px;
-    fill: #000;
+    color: #000;
 }
 #sidebar-wrapper, main {
     box-sizing: border-box;
@@ -91,15 +87,5 @@ main {
         width: auto;
         /* Flex-grow streches the main content to fill all available space. */
         flex-grow: 1;
-    }
-}
-
-/* If there is space (> 800px), we keep the drawer open by default. */
-@media (min-width: 600px) {
-    main > #menu:after {
-        content: 'The drawer stays open if width > 600px';
-    }
-    main p, nav p {
-        text-decoration: line-through;
     }
 }

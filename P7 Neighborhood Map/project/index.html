@@ -21,14 +21,14 @@
                         <input id="zoom-to-area-text" type="text" placeholder="Enter your city!">
                         <input id="zoom-to-area" type="button" value="Go">
                     </li>
-                    <div class="dropdown">
+                    <li class="dropdown">
                         <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            Select your favorite cuisine
+                            Select cuisine
                         </button>
                         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" data-bind="foreach: cuisinesList">
                             <a class="dropdown-item" href="#" data-bind="text: name, click: filter"></a>
                         </div>
-                    </div>
+                    </li>
                     <li data-bind="foreach: restaurantList">
                         <a href="#" data-bind="text: marker.name, click: detail, visible: visibility() === true"></a>
                     </li>
@@ -43,7 +43,7 @@
                         <path d="M2 6h20v3H2zm0 5h20v3H2zm0 5h20v3H2z"></path>
                     </svg>
                 </a>
-                <input id="pac-input" class="controls" type="text" placeholder="Enter a place, and find restaurants within 10 minutes' walk!">
+                <input id="pac-input" class="controls" type="text" placeholder="Enter a place, and find restaurants within 10 minutes' walk!" data-bind="">
                 <div id="map"></div>
             </main>
             <!-- /#page-content-wrapper -->
