@@ -1,11 +1,11 @@
 /* Always set the map height explicitly to define the size of the div
  * element that contains the map. */
 #map {
-    bottom:0px;
+    bottom:0;
     height: 100%;
-    left: 0px;
+    left: 0;
     position: absolute;
-    right: 0px;
+    right: 0;
 }
 
 #pac-input {
@@ -17,6 +17,16 @@
     padding: 0 11px 0 13px;
     text-overflow: ellipsis;
     width: 500px;
+}
+
+
+.dropdown-item {
+    text-indent: 0;
+    color: #212529 !important;
+}
+
+.dropdown-item:hover{
+    background : #F8F9FA !important;
 }
 
 
@@ -61,7 +71,7 @@ main {
 @media (min-width: 600px) {
 
     a#menu svg {
-        width: 0px;
+        width: 0;
     }
 
     #map {

@@ -6,13 +6,12 @@
 // parameter when you first load the API. For example:
 // <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places">
 
-"use strict";
-
 var map;
 var infowindow;
 var markers = [];
 
-function initAutocomplete() {
+function initMap() {
+    "use strict";
     var newYork = {lat: 40.7413549, lng: -73.9980244};
 
     // New York as initial viewport
@@ -68,7 +67,7 @@ function initAutocomplete() {
         infowindow = new google.maps.InfoWindow();
         var bounds = new google.maps.LatLngBounds();
         places.forEach(function(place) {
-            var restaurantAPI = `https://developers.zomato.com/api/v2.1/search?count=3&lat=${place.geometry.location.lat()}&lon=${place.geometry.location.lng()}&radius=500&apikey=fdab76b655596f02ba656c39adca693e`;
+            var restaurantAPI = `https://developers.zomato.com/api/v2.1/search?count=20&lat=${place.geometry.location.lat()}&lon=${place.geometry.location.lng()}&radius=500&apikey=fdab76b655596f02ba656c39adca693e`;
             $.getJSON(restaurantAPI, function (data) {
                 if (data.results_shown === 0) {
                     // No restaurant info
@@ -85,6 +84,7 @@ function initAutocomplete() {
                         markers.push(marker);
                         bounds.extend(marker.position);
 
+                        // Restaurant info
                         marker.url = restaurant.url;
                         marker.rating = restaurant.user_rating.aggregate_rating;
                         marker.votes = restaurant.user_rating.votes;
@@ -92,7 +92,6 @@ function initAutocomplete() {
                         marker.currency = restaurant.currency;
                         marker.cuisines = restaurant.cuisines;
                         marker.thumb = restaurant.thumb;
-
                         marker.addListener('click', function() {
                             getPlacesDetails(this, infowindow);
                         });
@@ -111,6 +110,7 @@ function initAutocomplete() {
 
 // Go to selected city when 'Go' is clicked
 function zoomToArea() {
+    "use strict";
     // Initialize the geocoder.
     var geocoder = new google.maps.Geocoder();
 
@@ -126,7 +126,7 @@ function zoomToArea() {
         geocoder.geocode(
             { address: address
             }, function(results, status) {
-                if (status == google.maps.GeocoderStatus.OK) {
+                if (status === google.maps.GeocoderStatus.OK) {
                     map.setCenter(results[0].geometry.location);
                     map.setZoom(13);
                 } else {
@@ -139,6 +139,7 @@ function zoomToArea() {
 
 // Populate the DOM
 function getPlacesDetails(marker, infowindow) {
+    "use strict";
     // Set the marker property on this infowindow so it isn't created again.
     infowindow.marker = marker;
     var innerHTML = '<div>';
@@ -171,6 +172,7 @@ function getPlacesDetails(marker, infowindow) {
 
 // Open the infowindow and make the marker bounce once
 function animation(marker, infowindow) {
+    "use strict";
     infowindow.open(map, marker);
     if (marker.getAnimation() !== null) {
         marker.setAnimation(null);
@@ -180,7 +182,9 @@ function animation(marker, infowindow) {
     }
 }
 
+
 var ViewModel = function () {
+    "use strict";
     var self = this;
     this.restaurantList = ko.observableArray([]);
     this.cuisinesList = ko.observableArray([]);
@@ -207,6 +211,7 @@ var ViewModel = function () {
 };
 
 var Restaurant = function (marker, infowindow) {
+    "use strict";
     this.marker = marker;
 
     // Hide filtered restaurant on sidebar if false
@@ -219,6 +224,7 @@ var Restaurant = function (marker, infowindow) {
 };
 
 var Cuisines = function (cuisine) {
+    "use strict";
     var self = this;
     this.name = cuisine;
     this.filter = function () {
@@ -246,41 +252,3 @@ function filter(name) {
 var VM = new ViewModel();
 
 ko.applyBindings(VM);
-
-var mapApplication = function (){
-
-    var mapsModel = {
-        fromAddress: ko.observable(),
-        toAddress: ko.observable()
-    };
-    // method to add custom binding handler to the KO
-    var configureBindingHandlers = function(){
-        // custom binding for address auto complete
-        ko.bindingHandlers.addressAutoComplete = {
-            init: function(element, valueAccessor){
-                //create autocomplete object
-                var autocomplete = new google.maps.places.Autocomplete(element, {types:['geocode']});
-                // when user selects an address from the drop down, populate the address in the model.
-                var value = valueAccessor();
-                google.maps.event.addListener(autocomplete, 'place_changed', function(){
-                    var place = autocomplete.getPlace();
-                    console.log(place);
-                    value(place);
-                });
-            }
-        };
-    };
-
-    var init = function(){
-        // add code to initialise the module
-        ko.applyBindings(mapApplication);
-    };
-
-    // execute the init function when the DOM is ready
-    $(init);
-
-    return {
-        // add member that will be exposed publicly
-        mapsModel: mapsModel
-    };
-}();
