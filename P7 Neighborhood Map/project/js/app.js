@@ -74,7 +74,7 @@ function getMarkers(lat, lng) {
     "use strict";
     infowindow = new google.maps.InfoWindow();
     var bounds = new google.maps.LatLngBounds();
-    var restaurantAPI = `https://developers.zomato.com/api/v2.1/search?count=3&lat=${lat}&lon=${lng}&radius=500&apikey=fdab76b655596f02ba656c39adca693e`;
+    var restaurantAPI = `https://developers.zomato.com/api/v2.1/search?count=20&lat=${lat}&lon=${lng}&radius=500&apikey=fdab76b655596f02ba656c39adca693e`;
     $.getJSON(restaurantAPI, function (data) {
         if (data.results_shown === 0) {
             // No restaurant info
