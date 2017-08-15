@@ -18,8 +18,8 @@
             <div id="sidebar-wrapper">
                 <ul class="sidebar-nav">
                     <li>
-                        <input id="zoom-to-area-text" type="text" placeholder="Enter your city!">
-                        <input id="zoom-to-area" type="button" value="Go">
+                        <input id="zoom-to-area-text" type="text" placeholder="Enter your city!" data-bind="value: zoom">
+                        <input id="zoom-to-area" type="button" value="Go" data-bind="click: zoomToArea">
                     </li>
                     <li>
                         <div class="dropdown">

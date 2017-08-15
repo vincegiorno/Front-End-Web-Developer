@@ -12,7 +12,7 @@ var markers = [];
 
 function initMap() {
     "use strict";
-    var newYork = {lat: 40.7413549, lng: -73.9980244};
+    var newYork = {lat: 40.7406375, lng: -74.0020388};
 
     // New York as initial viewport
     map = new google.maps.Map(document.getElementById('map'), {
@@ -23,19 +23,19 @@ function initMap() {
         }
     });
 
+    // Showing restaurants around Google New York Office by default
+    getMarkers(newYork.lat, newYork.lng);
+
     // This autocomplete is for use in the geocoder entry box.
     var zoomAutocomplete = new google.maps.places.Autocomplete(
         document.getElementById('zoom-to-area-text'));
-    document.getElementById('zoom-to-area').addEventListener('click', function() {
-        zoomToArea();
-    });
 
     // Create the search box and link it to the UI element.
     var input = document.getElementById('pac-input');
     var menu = document.getElementById('menu');
     var searchBox = new google.maps.places.SearchBox(input);
-    map.controls[google.maps.ControlPosition.TOP_LEFT].push(menu);
     map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
+    map.controls[google.maps.ControlPosition.TOP_LEFT].push(menu);
 
     // Bias the SearchBox results towards current map's viewport.
     map.addListener('bounds_changed', function() {
@@ -62,79 +62,55 @@ function initMap() {
         // Clear out dropdown
         VM.cuisinesList([]);
         VM.cuisinesUnique = [];
-
-        // For each place, get the icon, name and location.
-        infowindow = new google.maps.InfoWindow();
-        var bounds = new google.maps.LatLngBounds();
-        places.forEach(function(place) {
-            var restaurantAPI = `https://developers.zomato.com/api/v2.1/search?count=20&lat=${place.geometry.location.lat()}&lon=${place.geometry.location.lng()}&radius=500&apikey=fdab76b655596f02ba656c39adca693e`;
-            $.getJSON(restaurantAPI, function (data) {
-                if (data.results_shown === 0) {
-                    // No restaurant info
-                    window.alert('Sorry, we cannot find restaurant information around this place.');
-                } else {
-                    data.restaurants.forEach(function (item) {
-                        var restaurant = item.restaurant;
-                        var marker = new google.maps.Marker({
-                            name: restaurant.name,
-                            map: map,
-                            position: {lat: Number(restaurant.location.latitude), lng: Number(restaurant.location.longitude)},
-                            animation: null
-                        });
-                        markers.push(marker);
-                        bounds.extend(marker.position);
-
-                        // Restaurant info
-                        marker.url = restaurant.url;
-                        marker.rating = restaurant.user_rating.aggregate_rating;
-                        marker.votes = restaurant.user_rating.votes;
-                        marker.cost = restaurant.average_cost_for_two;
-                        marker.currency = restaurant.currency;
-                        marker.cuisines = restaurant.cuisines;
-                        marker.thumb = restaurant.thumb;
-                        marker.addListener('click', function() {
-                            getPlacesDetails(this, infowindow);
-                        });
-
-                        // Add marker to restaurantList and cuisinesList for sidebar and dropdown respectively
-                        VM.addMarker(marker, infowindow);
-                    });
-                    map.fitBounds(bounds);
-                }
-            }).error(function (e) {
-                window.alert('Sorry, restaurant information cannot be loaded.');
-            });
+        places.forEach(function (place) {
+            getMarkers(place.geometry.location.lat(), place.geometry.location.lng());
         });
     });
 }
 
-// Go to selected city when 'Go' is clicked
-function zoomToArea() {
+
+// For each place, get the icon, name and location.
+function getMarkers(lat, lng) {
     "use strict";
-    // Initialize the geocoder.
-    var geocoder = new google.maps.Geocoder();
+    infowindow = new google.maps.InfoWindow();
+    var bounds = new google.maps.LatLngBounds();
+    var restaurantAPI = `https://developers.zomato.com/api/v2.1/search?count=3&lat=${lat}&lon=${lng}&radius=500&apikey=fdab76b655596f02ba656c39adca693e`;
+    $.getJSON(restaurantAPI, function (data) {
+        if (data.results_shown === 0) {
+            // No restaurant info
+            window.alert('Sorry, we cannot find restaurant information around this place.');
+        } else {
+            data.restaurants.forEach(function (item) {
+                var restaurant = item.restaurant;
+                var marker = new google.maps.Marker({
+                    name: restaurant.name,
+                    map: map,
+                    position: {lat: Number(restaurant.location.latitude), lng: Number(restaurant.location.longitude)},
+                    animation: null
+                });
+                markers.push(marker);
+                bounds.extend(marker.position);
 
-    // Get the address or place that the user entered.
-    var address = document.getElementById('zoom-to-area-text').value;
+                // Restaurant info
+                marker.url = restaurant.url;
+                marker.rating = restaurant.user_rating.aggregate_rating;
+                marker.votes = restaurant.user_rating.votes;
+                marker.cost = restaurant.average_cost_for_two;
+                marker.currency = restaurant.currency;
+                marker.cuisines = restaurant.cuisines;
+                marker.thumb = restaurant.thumb;
+                marker.addListener('click', function() {
+                    getPlacesDetails(this, infowindow);
+                });
 
-    // Make sure the address isn't blank.
-    if (address === '') {
-        window.alert('You must enter an area, or address.');
-    } else {
-        // Geocode the address/area entered to get the center. Then, center the map
-        // on it and zoom in
-        geocoder.geocode(
-            { address: address
-            }, function(results, status) {
-                if (status === google.maps.GeocoderStatus.OK) {
-                    map.setCenter(results[0].geometry.location);
-                    map.setZoom(13);
-                } else {
-                    window.alert('We could not find that location - try entering a more' +
-                        ' specific place.');
-                }
+                // Add marker to restaurantList and cuisinesList for sidebar and dropdown respectively
+                VM.addMarker(marker, infowindow);
             });
-    }
+            map.fitBounds(bounds);
+        }
+    }).error(function (e) {
+        window.alert('Sorry, restaurant information cannot be loaded.');
+    });
 }
 
 // Populate the DOM
@@ -186,11 +162,42 @@ function animation(marker, infowindow) {
 var ViewModel = function () {
     "use strict";
     var self = this;
+    this.zoom = ko.observable();
     this.restaurantList = ko.observableArray([]);
     this.cuisinesList = ko.observableArray([]);
 
     // For filtering distinct cuisines
     this.cuisinesUnique = [];
+
+    // Go to selected city when 'Go' is clicked
+    this.zoomToArea = function () {
+        // Initialize the geocoder.
+        var geocoder = new google.maps.Geocoder();
+
+        // Get the address or place that the user entered.
+        // var address = document.getElementById('zoom-to-area-text').value;
+        var address = self.zoom();
+
+        // Make sure the address isn't blank.
+        if (address === '') {
+            window.alert('You must enter an area, or address.');
+        } else {
+            // Geocode the address/area entered to get the center. Then, center the map
+            // on it and zoom in
+            geocoder.geocode(
+                { address: address
+                }, function(results, status) {
+                    if (status === google.maps.GeocoderStatus.OK) {
+                        map.setCenter(results[0].geometry.location);
+                        map.setZoom(13);
+                    } else {
+                        window.alert('We could not find that location - try entering a more' +
+                            ' specific place.');
+                    }
+                });
+        }
+    };
+
     this.addMarker = function (marker, infowindow) {
         // Add marker to restaurantList for sidebar
         self.restaurantList.push(new Restaurant(marker, infowindow));
