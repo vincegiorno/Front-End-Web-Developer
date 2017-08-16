@@ -67,6 +67,7 @@ $(function() {
           */
          it('should change when clicked', function () {
              var menuIcon = $('.menu-icon-link');
+             // Verify that after clicking menu icon once, the menu displays
              menuIcon.click();
              expect(body.hasClass('menu-hidden')).toBe(false);
              menuIcon.click();
@@ -89,7 +90,7 @@ $(function() {
         });
 
         it('should contain at least one entry', function () {
-            expect($('.feed .entry-link').length).not.toBeLessThan(1);
+            expect($('.feed .entry-link').length).toBeGreaterThan(0);
         });
     });
 
