@@ -9,6 +9,8 @@
         <link href="css/libs/bootstrap.min.css" rel="stylesheet">
         <!-- Custom styles for the sidebar -->
         <link href="css/libs/simple-sidebar.css" rel="stylesheet">
+
+        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCZtdnOs4ZZAkI7D2ApGhX371iCXHqORsM&v=3&libraries=places"></script>
     </head>
     <body>
 
@@ -18,7 +20,7 @@
             <div id="sidebar-wrapper">
                 <ul class="sidebar-nav">
                     <li>
-                        <input id="zoom-to-area-text" type="text" placeholder="Enter your city!" data-bind="value: zoom">
+                        <input id="zoom-to-area-text" type="text" placeholder="Enter your city!" data-bind="addressAutocomplete: address">
                         <input id="zoom-to-area" type="button" value="Go" data-bind="click: zoomToArea">
                     </li>
                     <li>
@@ -74,7 +76,7 @@
             }
         </script>
 
-        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCZtdnOs4ZZAkI7D2ApGhX371iCXHqORsM&libraries=places&callback=initMap" onerror="googleError()" async defer></script>
+        <!--<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCZtdnOs4ZZAkI7D2ApGhX371iCXHqORsM&libraries=places&callback=initMap" onerror="googleError()" async defer></script>-->
 
         <!-- Bootstrap core JavaScript -->
         <script src="js/libs/jquery.min.js"></script>

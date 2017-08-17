@@ -26,10 +26,6 @@ function initMap() {
     // Showing restaurants around Google New York Office by default
     getMarkers(newYork.lat, newYork.lng);
 
-    // This autocomplete is for use in the geocoder entry box.
-    var zoomAutocomplete = new google.maps.places.Autocomplete(
-        document.getElementById('zoom-to-area-text'));
-
     // Create the search box and link it to the UI element.
     var input = document.getElementById('pac-input');
     var menu = document.getElementById('menu');
@@ -74,7 +70,7 @@ function getMarkers(lat, lng) {
     "use strict";
     infowindow = new google.maps.InfoWindow();
     var bounds = new google.maps.LatLngBounds();
-    var restaurantAPI = `https://developers.zomato.com/api/v2.1/search?count=20&lat=${lat}&lon=${lng}&radius=500&apikey=fdab76b655596f02ba656c39adca693e`;
+    var restaurantAPI = `https://developers.zomato.com/api/v2.1/search?count=3&lat=${lat}&lon=${lng}&radius=500&apikey=fdab76b655596f02ba656c39adca693e`;
     $.getJSON(restaurantAPI, function (data) {
         if (data.results_shown === 0) {
             // No restaurant info
@@ -159,10 +155,24 @@ function animation(marker, infowindow) {
 }
 
 
+// Google Autocomplete with custom binding
+ko.bindingHandlers.addressAutocomplete = {
+    init: function (element, valueAccessor) {
+        "use strict";
+        var value = valueAccessor(),
+            options = { types: ['geocode'] },
+            autocomplete = new google.maps.places.Autocomplete(element, options);
+        google.maps.event.addListener(autocomplete, 'place_changed', function () {
+            var result = autocomplete.getPlace();
+            value(result.formatted_address);
+        });
+    }
+};
+
 var ViewModel = function () {
     "use strict";
     var self = this;
-    this.zoom = ko.observable();
+    this.address = ko.observable();
     this.restaurantList = ko.observableArray([]);
     this.cuisinesList = ko.observableArray([]);
 
@@ -176,7 +186,7 @@ var ViewModel = function () {
 
         // Get the address or place that the user entered.
         // var address = document.getElementById('zoom-to-area-text').value;
-        var address = self.zoom();
+        var address = self.address();
 
         // Make sure the address isn't blank.
         if (address === '') {
@@ -259,3 +269,5 @@ function filter(name) {
 var VM = new ViewModel();
 
 ko.applyBindings(VM);
+
+window.onload = initMap;
