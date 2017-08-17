@@ -6,79 +6,36 @@
 // parameter when you first load the API. For example:
 // <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places">
 
-var map;
-var infowindow;
-var markers = [];
+var map,
+    infowindow,
+    markers = [],
+    newYork = {lat: 40.7406375, lng: -74.0020388};
 
 function initMap() {
     "use strict";
-    var newYork = {lat: 40.7406375, lng: -74.0020388};
-
-    // New York as initial viewport
-    map = new google.maps.Map(document.getElementById('map'), {
-        center: newYork,
-        zoom: 13,
-        mapTypeControlOptions: {
-            position: google.maps.ControlPosition.LEFT_BOTTOM
-        }
-    });
+    var menu = document.getElementById('menu'),
+        input = document.getElementById('pac-input');
+    map.controls[google.maps.ControlPosition.TOP_LEFT].push(menu);
+    map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
 
     // Showing restaurants around Google New York Office by default
     getMarkers(newYork.lat, newYork.lng);
-
-    // Create the search box and link it to the UI element.
-    var input = document.getElementById('pac-input');
-    var menu = document.getElementById('menu');
-    var searchBox = new google.maps.places.SearchBox(input);
-    map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
-    map.controls[google.maps.ControlPosition.TOP_LEFT].push(menu);
-
-    // Bias the SearchBox results towards current map's viewport.
-    map.addListener('bounds_changed', function() {
-        searchBox.setBounds(map.getBounds());
-    });
-
-    // Listen for the event fired when the user selects a prediction and retrieve
-    // more details for that place.
-    searchBox.addListener('places_changed', function() {
-        var places = searchBox.getPlaces();
-        if (places.length === 0) {
-            return;
-        }
-
-        // Clear out the old markers.
-        markers.forEach(function(marker) {
-            marker.setMap(null);
-        });
-        markers = [];
-
-        // Clear out sidebar
-        VM.restaurantList([]);
-
-        // Clear out dropdown
-        VM.cuisinesList([]);
-        VM.cuisinesUnique = [];
-        places.forEach(function (place) {
-            getMarkers(place.geometry.location.lat(), place.geometry.location.lng());
-        });
-    });
 }
 
-
-// For each place, get the icon, name and location.
+// For each place, get the marker icon, name and location.
 function getMarkers(lat, lng) {
     "use strict";
     infowindow = new google.maps.InfoWindow();
-    var bounds = new google.maps.LatLngBounds();
-    var restaurantAPI = `https://developers.zomato.com/api/v2.1/search?count=3&lat=${lat}&lon=${lng}&radius=500&apikey=fdab76b655596f02ba656c39adca693e`;
+    var bounds = new google.maps.LatLngBounds(),
+        restaurantAPI = `https://developers.zomato.com/api/v2.1/search?count=20&lat=${lat}&lon=${lng}&radius=500&apikey=fdab76b655596f02ba656c39adca693e`;
     $.getJSON(restaurantAPI, function (data) {
         if (data.results_shown === 0) {
             // No restaurant info
             window.alert('Sorry, we cannot find restaurant information around this place.');
         } else {
             data.restaurants.forEach(function (item) {
-                var restaurant = item.restaurant;
-                var marker = new google.maps.Marker({
+                var restaurant = item.restaurant,
+                    marker = new google.maps.Marker({
                     name: restaurant.name,
                     map: map,
                     position: {lat: Number(restaurant.location.latitude), lng: Number(restaurant.location.longitude)},
@@ -112,6 +69,7 @@ function getMarkers(lat, lng) {
 // Populate the DOM
 function getPlacesDetails(marker, infowindow) {
     "use strict";
+
     // Set the marker property on this infowindow so it isn't created again.
     infowindow.marker = marker;
     var innerHTML = '<div>';
@@ -162,9 +120,59 @@ ko.bindingHandlers.addressAutocomplete = {
         var value = valueAccessor(),
             options = { types: ['geocode'] },
             autocomplete = new google.maps.places.Autocomplete(element, options);
-        google.maps.event.addListener(autocomplete, 'place_changed', function () {
+        autocomplete.addListener('place_changed', function () {
             var result = autocomplete.getPlace();
             value(result.formatted_address);
+        });
+    }
+};
+
+// Google SearchBox with custom binding
+ko.bindingHandlers.searchBox = {
+    init: function (element, valueAccessor) {
+        "use strict";
+
+        // New York as initial viewport
+        map = new google.maps.Map(document.getElementById('map'), {
+            center: newYork,
+            zoom: 13,
+            mapTypeControlOptions: {
+                position: google.maps.ControlPosition.LEFT_BOTTOM
+            }
+        });
+
+        // Create the search box and link it to the UI element.
+        var searchBox = new google.maps.places.SearchBox(element);
+
+        // Bias the SearchBox results towards current map's viewport.
+        map.addListener('bounds_changed', function() {
+            searchBox.setBounds(map.getBounds());
+        });
+
+        // Listen for the event fired when the user selects a prediction and retrieve
+        // more details for that place.
+        searchBox.addListener('places_changed', function() {
+            var places = searchBox.getPlaces();
+            if (places.length === 0) {
+                return;
+            }
+
+            // Clear out the old markers.
+            markers.forEach(function(marker) {
+                marker.setMap(null);
+            });
+            markers = [];
+
+            // Clear out sidebar
+            VM.restaurantList([]);
+
+            // Clear out dropdown
+            VM.cuisinesList([]);
+            VM.cuisinesUnique = [];
+            places.forEach(function (place) {
+                valueAccessor(place);
+                getMarkers(place.geometry.location.lat(), place.geometry.location.lng());
+            });
         });
     }
 };
@@ -172,7 +180,8 @@ ko.bindingHandlers.addressAutocomplete = {
 var ViewModel = function () {
     "use strict";
     var self = this;
-    this.address = ko.observable();
+    this.cityAddress = ko.observable();
+    this.placeAddress = ko.observable();
     this.restaurantList = ko.observableArray([]);
     this.cuisinesList = ko.observableArray([]);
 
@@ -185,8 +194,7 @@ var ViewModel = function () {
         var geocoder = new google.maps.Geocoder();
 
         // Get the address or place that the user entered.
-        // var address = document.getElementById('zoom-to-area-text').value;
-        var address = self.address();
+        var address = self.cityAddress();
 
         // Make sure the address isn't blank.
         if (address === '') {

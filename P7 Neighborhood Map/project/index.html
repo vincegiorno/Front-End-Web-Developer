@@ -18,7 +18,7 @@
             <div id="sidebar-wrapper">
                 <ul class="sidebar-nav">
                     <li>
-                        <input id="zoom-to-area-text" type="text" placeholder="Enter your city!" data-bind="addressAutocomplete: address">
+                        <input id="zoom-to-area-text" type="text" placeholder="Enter your city!" data-bind="addressAutocomplete: cityAddress">
                         <input id="zoom-to-area" type="button" value="Go" data-bind="click: zoomToArea">
                     </li>
                     <li>
@@ -45,7 +45,7 @@
                         <path d="M2 6h20v3H2zm0 5h20v3H2zm0 5h20v3H2z"></path>
                     </svg>
                 </a>
-                <input id="pac-input" class="controls" type="text" placeholder="Enter a place, and find restaurants within 10 minutes' walk!">
+                <input id="pac-input" class="controls" type="text" placeholder="Enter a place, and find restaurants within 10 minutes' walk!" data-bind="searchBox: placeAddress">
                 <div id="map"></div>
             </main>
             <!-- /#page-content-wrapper -->
@@ -74,6 +74,7 @@
             }
         </script>
 
+        <!--Cannot async or defer because of immediate implementation of google map places library in KO custome binding(app.js)-->
         <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCZtdnOs4ZZAkI7D2ApGhX371iCXHqORsM&libraries=places" onerror="googleError()"></script>
 
         <!-- Bootstrap core JavaScript -->
