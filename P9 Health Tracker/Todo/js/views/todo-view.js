@@ -18,9 +18,7 @@ var app = app || {};
 		// The DOM events specific to an item.
 		events: {
 			'click .toggle': 'toggleCompleted',
-			'click .edit-btn': 'edit',
 			'dblclick label': 'edit',
-			'click .priority-btn': 'togglePriority',
 			'click .destroy': 'clear',
 			'keypress .edit': 'updateOnEnter',
 			'keydown .edit': 'revertOnEscape',
@@ -52,7 +50,6 @@ var app = app || {};
 
 			this.$el.html(this.template(this.model.toJSON()));
 			this.$el.toggleClass('completed', this.model.get('completed'));
-			this.$el.toggleClass('priority', this.model.get('priority'));
 			this.toggleVisible();
 			this.$input = this.$('.edit');
 			return this;
@@ -66,11 +63,6 @@ var app = app || {};
 			return this.model.get('completed') ?
 				app.TodoFilter === 'active' :
 				app.TodoFilter === 'completed';
-		},
-
-		// Toggle the `"priority"` state of the model.
-		togglePriority: function () {
-			this.model.togglePriority();
 		},
 
 		// Toggle the `"completed"` state of the model.
@@ -99,15 +91,6 @@ var app = app || {};
 
 			if (trimmedValue) {
 				this.model.save({ title: trimmedValue });
-
-				if (value !== trimmedValue) {
-					// Model values changes consisting of whitespaces only are
-					// not causing change to be triggered Therefore we've to
-					// compare untrimmed version with a trimmed one to check
-					// whether anything changed
-					// And if yes, we've to trigger change event ourselves
-					this.model.trigger('change');
-				}
 			} else {
 				this.clear();
 			}
