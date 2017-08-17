@@ -71,6 +71,7 @@ var app = app || {};
 			}
 
 			this.allCheckbox.checked = !remaining;
+			console.log(this.allCheckbox.checked);
 		},
 
 		// Add a single todo item to the list by creating a view for it, and
@@ -119,6 +120,7 @@ var app = app || {};
 		},
 
 		toggleAllComplete: function () {
+            console.log(this.allCheckbox.checked);
 			var completed = this.allCheckbox.checked;
 
 			app.todos.each(function (todo) {
