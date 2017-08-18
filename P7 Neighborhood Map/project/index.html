@@ -62,29 +62,7 @@
         </div>
         <!-- /#wrapper -->
 
-        <script>
-            /*
-             * Open the drawer when the menu ison is clicked.
-             */
-            var menu = document.querySelector('#menu');
-            var main = document.querySelector('main');
-            var drawer = document.querySelector('#sidebar-wrapper');
-
-            menu.addEventListener('click', function(e) {
-                drawer.classList.toggle('open');
-                e.stopPropagation();
-            });
-            main.addEventListener('click', function() {
-                drawer.classList.remove('open');
-            });
-
-            function googleError () {
-                window.alert('Sorry, Google Maps cannot be loaded.');
-            }
-        </script>
-
-        <!--Cannot async or defer because of immediate implementation of google map places library in KO custome binding(app.js)-->
-        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCZtdnOs4ZZAkI7D2ApGhX371iCXHqORsM&libraries=places" onerror="googleError()"></script>
+        <script src="https://maps.googleapis.com/maps/api/js?libraries=places&key=AIzaSyCZtdnOs4ZZAkI7D2ApGhX371iCXHqORsM&v=3&callback=initMap" async defer onerror="googleError()"></script>
 
         <!-- Bootstrap core JavaScript -->
         <script src="js/libs/jquery.min.js"></script>
