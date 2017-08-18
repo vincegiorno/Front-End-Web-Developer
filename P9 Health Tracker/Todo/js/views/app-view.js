@@ -71,7 +71,7 @@ var app = app || {};
 			}
 
 			this.allCheckbox.checked = !remaining;
-			console.log(this.allCheckbox.checked);
+			console.log(!remaining);
 		},
 
 		// Add a single todo item to the list by creating a view for it, and
