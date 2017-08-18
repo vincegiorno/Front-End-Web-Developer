@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body>
+        <input type="text" id="search">
+        <button class="test" onclick="">Add</button>
+
+        <table>
+            <thead><tr><th>Food</th><th>Quantity</th><th>Serving Size</th><th>Calories</th><th></th></tr></thead>
+            <tbody></tbody>
+        </table>
+
+        <table>
+            <thead><tr><th>Food</th><th>Quantity</th><th>Serving Size</th><th>Calories</th><th></th></tr></thead>
+            <tbody></tbody>
+        </table>
+
+        <script type="text/template" id="itemResult-template">
+            <tr>
+                <td data-title="Food"><%- name %></td>
+                <td data-title="Quantity">
+                    <input type="text" id="" value="1">
+                </td>
+                <td data-title="Serving Size">
+                    <select id="" onchange="">
+                    </select>
+                </td>
+                <td id="" data-title="Calories"><%- value %></td>
+                <td>
+                    <button class="" onclick="">Add</button>
+                </td>
+            </tr>
+        </script>
+
+        <script type="text/template" id="size-template">
+            <option value="">100g</option>
+            <option value=""><%- label %> (<%- eqv %><%- eunit %>)</option>
+        </script>
+
+        <script type="text/template" id="itemAdded-template">
+            <tr>
+                <td data-title="Food"><%- name %></td>
+                <td data-title="Quantity"><%- quantity %></td>
+                <td data-title="Serving Size"><%- label %> (<%- eqv %><%- eunit %>)</td>
+                <td data-title="Calories"><%- value %></td>
+                <td>
+                    <input type="button" class="" onclick="" value="Remove">
+                </td>
+            </tr>
+        </script>
+
+        <script src="libs/underscore.js"></script>
+        <script src="libs/jquery.js"></script>
+        <script src="libs/backbone.js"></script>
+        <script src="js/models/item.js"></script>
+        <script src="js/collections/items.js"></script>
+        <script src="js/views/item-view.js"></script>
+        <script src="js/views/app-view.js"></script>
+        <script src="js/app.js"></script>
+    </body>
+</html>
