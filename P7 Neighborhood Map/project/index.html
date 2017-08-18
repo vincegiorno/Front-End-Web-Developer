@@ -54,15 +54,13 @@
                         <path d="M2 6h20v3H2zm0 5h20v3H2zm0 5h20v3H2z"></path>
                     </svg>
                 </a>
-                <input id="pac-input" class="controls" type="text" placeholder="Enter a place, and find restaurants within 10 minutes' walk!" data-bind="searchBox: placeAddress">
+                <input id="pac-input" class="controls" type="text" placeholder="Enter a place, and find restaurants within Suen's 10-minute walk!" data-bind="searchBox: placeAddress">
                 <div id="map"></div>
             </main>
             <!-- /#page-content-wrapper -->
 
         </div>
         <!-- /#wrapper -->
-
-        <script src="https://maps.googleapis.com/maps/api/js?libraries=places&key=AIzaSyCZtdnOs4ZZAkI7D2ApGhX371iCXHqORsM&v=3&callback=initMap" async defer onerror="googleError()"></script>
 
         <!-- Bootstrap core JavaScript -->
         <script src="js/libs/jquery.min.js"></script>
@@ -71,5 +69,7 @@
 
         <script src="js/libs/knockout-3.2.0.js"></script>
         <script src="js/app.js"></script>
+
+        <script src="https://maps.googleapis.com/maps/api/js?libraries=places&key=AIzaSyCZtdnOs4ZZAkI7D2ApGhX371iCXHqORsM&v=3&callback=initMap" async defer onerror="googleError()"></script>
     </body>
 </html>

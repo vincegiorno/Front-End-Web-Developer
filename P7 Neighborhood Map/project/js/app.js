@@ -9,7 +9,7 @@
 var map,
     infowindow,
     markers = [],
-    newYork = {lat: 40.7406375, lng: -74.0020388};
+    melbourne = {lat: -37.7963689, lng: 144.9611738};
 
 function initMap() {
     "use strict";
@@ -32,7 +32,7 @@ function initMap() {
         init: function (element, valueAccessor) {
             // New York as initial viewport
             map = new google.maps.Map(document.getElementById('map'), {
-                center: newYork,
+                center: melbourne,
                 zoom: 13,
                 mapTypeControlOptions: {
                     position: google.maps.ControlPosition.LEFT_BOTTOM
@@ -138,7 +138,7 @@ function initMap() {
                 self.infowindow().close();
             }
             map.fitBounds(self.bounds());
-            ko.utils.arrayForEach(self.restaurantList(), function (restaurant) {
+            self.restaurantList().forEach(function (restaurant) {
                 restaurant.marker.setMap(map);
                 restaurant.visibility(true);
             });
@@ -163,19 +163,23 @@ function initMap() {
 
         // Dropdown filter
         this.filter = function () {
-            ko.utils.arrayForEach(VM.restaurantList(), function (restaurant) {
-                restaurant.marker.setMap(map);
-                restaurant.visibility(true);
+            var bounds = new google.maps.LatLngBounds();
+            VM.restaurantList().forEach(function (restaurant) {
+                restaurant.marker.setMap(null);
+                restaurant.visibility(false);
                 var cuisines = restaurant.marker.cuisines;
                 var cuisinesSplit = cuisines.split(', ');
-                if (cuisinesSplit.indexOf(self.name) === -1) {
+                if (cuisinesSplit.indexOf(self.name) !== -1) {
+                    bounds.extend(restaurant.marker.position);
+
                     // Visibility on map
-                    restaurant.marker.setMap(null);
+                    restaurant.marker.setMap(map);
 
                     // Visibility on sidebar
-                    restaurant.visibility(false);
+                    restaurant.visibility(true);
                 }
             });
+            map.fitBounds(bounds);
         };
     };
 
@@ -190,13 +194,13 @@ function initMap() {
     map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
 
     // Showing restaurants around Google New York Office by default
-    getMarkers(newYork.lat, newYork.lng);
+    getMarkers(melbourne.lat, melbourne.lng);
 
     // For each place, get the marker icon, name and location.
     function getMarkers(lat, lng) {
         infowindow = new google.maps.InfoWindow();
         var bounds = new google.maps.LatLngBounds(),
-            restaurantAPI = `https://developers.zomato.com/api/v2.1/search?count=3&lat=${lat}&lon=${lng}&radius=500&apikey=fdab76b655596f02ba656c39adca693e`;
+            restaurantAPI = `https://developers.zomato.com/api/v2.1/search?count=20&lat=${lat}&lon=${lng}&radius=500&apikey=fdab76b655596f02ba656c39adca693e`;
         $.getJSON(restaurantAPI, function (data) {
             if (data.results_shown === 0) {
                 // No restaurant info
@@ -295,7 +299,7 @@ function googleError () {
 }
 
 /*
-   * Open the drawer when the menu ison is clicked.
+   * Open the drawer when the menu icon is clicked.
    */
 var menu = document.querySelector('#menu');
 var main = document.querySelector('main');
