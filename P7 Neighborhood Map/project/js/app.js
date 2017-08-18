@@ -27,7 +27,7 @@ function getMarkers(lat, lng) {
     "use strict";
     infowindow = new google.maps.InfoWindow();
     var bounds = new google.maps.LatLngBounds(),
-        restaurantAPI = `https://developers.zomato.com/api/v2.1/search?count=20&lat=${lat}&lon=${lng}&radius=500&apikey=fdab76b655596f02ba656c39adca693e`;
+        restaurantAPI = `https://developers.zomato.com/api/v2.1/search?count=3&lat=${lat}&lon=${lng}&radius=500&apikey=fdab76b655596f02ba656c39adca693e`;
     $.getJSON(restaurantAPI, function (data) {
         if (data.results_shown === 0) {
             // No restaurant info
@@ -59,9 +59,15 @@ function getMarkers(lat, lng) {
                 // Add marker to restaurantList and cuisinesList for sidebar and dropdown respectively
                 VM.addMarker(marker, infowindow);
             });
+
+            // `bounds` is a `LatLngBounds` object
             map.fitBounds(bounds);
+            VM.bounds(bounds);
+            google.maps.event.addDomListener(window, 'resize', function() {
+                map.fitBounds(bounds);
+            });
         }
-    }).error(function (e) {
+    }).fail(function (e) {
         window.alert('Sorry, restaurant information cannot be loaded.');
     });
 }
@@ -69,6 +75,8 @@ function getMarkers(lat, lng) {
 // Populate the DOM
 function getPlacesDetails(marker, infowindow) {
     "use strict";
+    VM.infowindow(infowindow);
+    map.setCenter(marker.getPosition());
 
     // Set the marker property on this infowindow so it isn't created again.
     infowindow.marker = marker;
@@ -182,11 +190,31 @@ var ViewModel = function () {
     var self = this;
     this.cityAddress = ko.observable();
     this.placeAddress = ko.observable();
+    this.infowindow = ko.observable();
+    this.bounds = ko.observable();
     this.restaurantList = ko.observableArray([]);
     this.cuisinesList = ko.observableArray([]);
 
     // For filtering distinct cuisines
     this.cuisinesUnique = [];
+
+    this.addMarker = function (marker, infowindow, bounds) {
+        // Add marker to restaurantList for sidebar
+        self.restaurantList.push(new Restaurant(marker, infowindow));
+
+        // Add marker to cuisinesList for dropdown
+        if (marker.cuisines !== '') {
+            var cuisines = marker.cuisines;
+            var cuisinesSplit = cuisines.split(', ');
+            cuisinesSplit.forEach(function (cuisine) {
+                var uniqueCuisine = new Cuisines(cuisine);
+                if (self.cuisinesUnique.indexOf(uniqueCuisine.name) === -1) {
+                    self.cuisinesUnique.push(uniqueCuisine.name);
+                    self.cuisinesList.push(uniqueCuisine);
+                }
+            });
+        }
+    };
 
     // Go to selected city when 'Go' is clicked
     this.zoomToArea = function () {
@@ -216,22 +244,13 @@ var ViewModel = function () {
         }
     };
 
-    this.addMarker = function (marker, infowindow) {
-        // Add marker to restaurantList for sidebar
-        self.restaurantList.push(new Restaurant(marker, infowindow));
-
-        // Add marker to cuisinesList for dropdown
-        if (marker.cuisines !== '') {
-            var cuisines = marker.cuisines;
-            var cuisinesSplit = cuisines.split(', ');
-            cuisinesSplit.forEach(function (cuisine) {
-                var uniqueCuisine = new Cuisines(cuisine);
-                if (self.cuisinesUnique.indexOf(uniqueCuisine.name) === -1) {
-                    self.cuisinesUnique.push(uniqueCuisine.name);
-                    self.cuisinesList.push(uniqueCuisine);
-                }
-            });
-        }
+    this.showAll = function () {
+        self.infowindow().close();
+        map.fitBounds(self.bounds());
+        ko.utils.arrayForEach(self.restaurantList(), function (restaurant) {
+            restaurant.marker.setMap(map);
+            restaurant.visibility(true);
+        });
     };
 };
 

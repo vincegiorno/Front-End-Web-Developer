@@ -20,6 +20,11 @@
 }
 
 
+.container {
+    padding: 0 !important;
+    display: flex;
+}
+
 .dropdown-item {
     text-indent: 0;
     color: #212529 !important;

@@ -2,7 +2,7 @@
 <html>
     <head>
         <title>Neighborhood restaurant</title>
-        <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+        <meta name="viewport" content="initial-scale=1.0, user-scalable=yes">
         <meta charset="utf-8">
         <link rel="stylesheet" href="css/style.css">
         <!-- Bootstrap core CSS -->
@@ -15,27 +15,36 @@
         <div id="wrapper" class="toggled">
 
             <!-- Sidebar -->
-            <div id="sidebar-wrapper">
-                <ul class="sidebar-nav">
-                    <li>
-                        <input id="zoom-to-area-text" type="text" placeholder="Enter your city!" data-bind="addressAutocomplete: cityAddress">
-                        <input id="zoom-to-area" type="button" value="Go" data-bind="click: zoomToArea">
-                    </li>
-                    <li>
-                        <div class="dropdown">
-                            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                Select cuisine
-                            </button>
-                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" data-bind="foreach: cuisinesList">
-                                <a class="dropdown-item" href="#" data-bind="text: name, click: filter"></a>
+            <aside>
+                <div id="sidebar-wrapper">
+                    <ul class="sidebar-nav">
+                        <li>
+                            <input id="zoom-to-area-text" type="text" placeholder="Enter your city!" data-bind="addressAutocomplete: cityAddress">
+                            <input id="zoom-to-area" type="button" value="Go" data-bind="click: zoomToArea">
+                        </li>
+                        <li>
+                            <div class="container">
+                                <div class="dropdown">
+                                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        Cuisines
+                                    </button>
+                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" data-bind="foreach: cuisinesList">
+                                        <a class="dropdown-item" href="#" data-bind="text: name, click: filter"></a>
+                                    </div>
+                                </div>
+                                <div>
+                                    <button class="btn btn-secondary" data-bind="click: showAll">
+                                        Show All
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-                    </li>
-                    <li data-bind="foreach: restaurantList">
-                        <a href="#" data-bind="text: marker.name, click: detail, visible: visibility() === true"></a>
-                    </li>
-                </ul>
-            </div>
+                        </li>
+                        <li data-bind="foreach: restaurantList">
+                            <a href="#" data-bind="text: marker.name, click: detail, visible: visibility() === true"></a>
+                        </li>
+                    </ul>
+                </div>
+            </aside>
             <!-- /#sidebar-wrapper -->
 
             <!-- Page Content -->
